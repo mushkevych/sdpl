@@ -1,0 +1,10 @@
+# ERROR: Referencing non-existing column
+
+A = LOAD TABLE 'table_name' FROM 'tests/repo_a.yaml'
+        WITH SCHEMA 'tests/schema_a.yaml' VERSION 1 ;
+B = LOAD TABLE 'file_blob' FROM 'tests/repo_a.yaml'
+        WITH SCHEMA 'tests/schema_b.yaml' VERSION 1;
+
+D = JOIN A BY (A.a), B BY (B.b) WITH SCHEMA PROJECTION (A.*, B.non_existing_column);
+
+STORE D INTO TABLE 'table_name' FROM 'tests/repo_a.yaml';

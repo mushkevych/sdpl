@@ -1,0 +1,8 @@
+!DataRepository
+db: mydb
+host: host.the_company.xyz
+kwargs: {}
+name: repo_a
+password: the_password
+port: '6789'
+user: the_user

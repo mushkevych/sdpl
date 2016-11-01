@@ -1,0 +1,21 @@
+# snippet: load schema, load data, perform joins and schema projections, store result
+
+REGISTER 'file://path_to_library' AS first_library;
+
+A = LOAD TABLE 'table_name' FROM 'tests/repo_a.yaml'
+        WITH SCHEMA 'tests/schema_a.yaml' VERSION 1 ;
+
+B = LOAD TABLE 'file_blob' FROM 'tests/repo_a.yaml'
+        WITH SCHEMA 'tests/schema_b.yaml' VERSION 1;
+C = LOAD TABLE 'file_name' FROM 'tests/repo_a.yaml'
+        WITH SCHEMA 'tests/schema_c.yaml' VERSION 1;
+
+D = JOIN A BY (A.a), B BY (B.b)
+        WITH SCHEMA PROJECTION (A.*, B.column AS new_column);
+
+E = JOIN C BY (C.c), D BY (D.new_column)
+        WITH SCHEMA PROJECTION (C.*, D.new_column, D.column AS renamed_column);
+
+STORE D INTO TABLE 'table_name' FROM 'tests/repo_a.yaml';
+
+

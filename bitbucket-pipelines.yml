@@ -1,0 +1,17 @@
+#  configuration for SDPL.
+image: python:3.5.1
+
+pipelines:
+  default:
+    - step:
+        script: 
+          # ANTRL section
+          # for Ubuntu 16.04 use - apt-get install antlr4 
+          #- curl -o /usr/local/lib/antlr-4.5-complete.jar http://www.antlr.org/download/antlr-4.5-complete.jar
+          #- export CLASSPATH=".:/usr/local/lib/antlr-4.5-complete.jar:$CLASSPATH"
+          #- alias antlr4='java -Xmx500M -cp "/usr/local/lib/antlr-4.5-complete.jar:$CLASSPATH" org.antlr.v4.Tool'
+          #- alias grun='java org.antlr.v4.runtime.misc.TestRig'
+          
+          - pip install antlr4-python3-runtime
+          - pip install PyYAML
+          - python3 sdpl.py test

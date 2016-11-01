@@ -1,0 +1,21 @@
+# snippet: multi-relational joins
+
+A = LOAD TABLE 'table_name' FROM 'tests/repo_a.yaml'
+        WITH SCHEMA 'tests/schema_a.yaml' VERSION 1 ;
+B = LOAD TABLE 'file_blob' FROM 'tests/repo_a.yaml'
+        WITH SCHEMA 'tests/schema_b.yaml' VERSION 1;
+
+C = FILTER A BY A.a == 3 AND (A.aa >= 0 OR A.aaa < -100);
+D = FILTER B BY B.b != 'Bebe' OR B.bb == 'Zeze';
+
+```
+X = LOAD 'data' AS (a1:int,a2:int,a3:int);
+DUMP X;
+Y = FILTER X BY a3 == 3;
+
+STORE X INTO 'db://db_connection_string';
+STORE Y INTO 'output' USING PigDump();
+```
+
+STORE C INTO TABLE 'table_name_c' FROM 'tests/repo_a.yaml';
+STORE D INTO TABLE 'table_name_d' FROM 'tests/repo_a.yaml';

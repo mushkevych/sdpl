@@ -1,0 +1,7 @@
+# snippet: schema-only operations
+
+A = LOAD SCHEMA 'tests/schema_a.yaml' VERSION 1;
+B = LOAD SCHEMA 'tests/schema_b.yaml' VERSION 1;
+Z = SCHEMA PROJECTION (A.*, B.b, -A.aaa);
+
+STORE SCHEMA Z INTO 'tests/schema_z.yaml';

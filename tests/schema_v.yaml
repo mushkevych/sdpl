@@ -1,0 +1,16 @@
+!Schema
+fields:
+- !Field {data_type: LONG, default: null, is_nullable: null, is_primary_key: null,
+  is_unique: null, max_length: null, name: v, version: 1}
+- !Field {data_type: LONG, default: null, is_nullable: null, is_primary_key: null,
+  is_unique: null, max_length: null, name: vv, version: 1}
+- !Field {data_type: LONG, default: null, is_nullable: null, is_primary_key: null,
+  is_unique: null, max_length: null, name: vvv, version: 1}
+- !Field {data_type: BOOLEAN, default: null, is_nullable: null, is_primary_key: null,
+  is_unique: null, max_length: null, name: column, version: 1}
+- !Field {data_type: BOOLEAN, default: null, is_nullable: null, is_primary_key: null,
+  is_unique: null, max_length: null, name: min_version, version: 1}
+- !Field {data_type: BOOLEAN, default: null, is_nullable: null, is_primary_key: null,
+  is_unique: null, max_length: null, name: middle_version, version: 2}
+- !Field {data_type: BOOLEAN, default: null, is_nullable: null, is_primary_key: null,
+  is_unique: null, max_length: null, name: high_version, version: 4}

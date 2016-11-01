@@ -1,0 +1,34 @@
+# snippet: multi-relational joins
+
+A = LOAD TABLE 'table_name' FROM 'tests/repo_a.yaml'
+        WITH SCHEMA 'tests/schema_a.yaml' VERSION 1 ;
+B = LOAD TABLE 'file_blob' FROM 'tests/repo_a.yaml'
+        WITH SCHEMA 'tests/schema_b.yaml' VERSION 1;
+
+C = JOIN A BY (A.a), B BY (B.b)
+        WITH SCHEMA PROJECTION (
+            A.*,
+            B.*,
+            -B.column,
+            -B.another_column,
+            -B.yet_another_column);
+
+C = JOIN A BY (A.a, A.aa), B BY (B.b, B.bb), C BY (C.c, C.cc)
+        WITH SCHEMA PROJECTION (
+            A.*,
+            B.*,
+            C.*,
+            -C.a,
+            -C.aa,
+            -C.aaa,
+            -C.b,
+            -C.bb,
+            -C.bbb,
+            -B.column,
+            -B.another_column,
+            -B.yet_another_column,
+            -C.column,
+            -C.another_column,
+            -C.yet_another_column);
+
+STORE C INTO TABLE 'table_name' FROM 'tests/repo_a.yaml';
