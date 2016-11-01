@@ -1,8 +1,7 @@
 # SDPL
 schema driven processing language
 
-[![PyPI version](https://img.shields.io/pypi/v/synergy_scheduler.svg)](https://pypi.python.org/pypi/sdpl)
-[![Build Status](https://api.bitbucket.org/2.0/repositories/{owner}/{repo_slug}/commit/{revision}/statuses/build/{key})](https://travis-ci.org/mushkevych/sdpl/)
+[![PyPI version](https://img.shields.io/pypi/v/sdpl.svg)](https://pypi.python.org/pypi/sdpl)
 
 SDPL introduces data schema to major data processing languages
 such as Apache Pig, Spark and Hive. SDPL supports generic operations such as
