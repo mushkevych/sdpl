@@ -2,8 +2,6 @@
 
 ### version +1
 
-1. Add `COMPUTE` construct 
-
 1. Simplify use of the relation name in the field resolution:
 
 
@@ -15,5 +13,5 @@
 
 1. remove keyword `COMPUTE` 
 
-1. Parse DataSink and DataSource connection string to generate proper
+1. Parse `DataSink` and `DataSource` connection string to generate proper
 PigStorage/BinStorage/JsonStorage
