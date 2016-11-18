@@ -11,8 +11,9 @@
     -> 
     C = FILTER A BY a == 3; 
 
-
 ### version +2
+
+1. remove keyword `COMPUTE` 
 
 1. Parse DataSink and DataSource connection string to generate proper
 PigStorage/BinStorage/JsonStorage

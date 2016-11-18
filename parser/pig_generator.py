@@ -228,8 +228,9 @@ class PigGenerator(sdplListener):
         projection = self.parse_schema_projection(relation_name, ctx_proj_fields)
 
         # step 3: expand schema with FOREACH ... GENERATE
+        output_fields = projection.fields + projection.computable_fields
         self._out('{0} = FOREACH {1} GENERATE'.format(relation_name, join_name))
-        output = ',\n    '.join([str(f) for f in projection.fields])
+        output = ',\n    '.join([str(f) for f in output_fields])
         self._out('    ' + output)
         self._out(';')
 

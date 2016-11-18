@@ -1,0 +1,20 @@
+# snippet: testing COMPUTE construct with no *plain* (i.e. uncomputed) fields
+
+# load A
+A = LOAD TABLE 'table_name' FROM 'tests/repo_a.yaml'
+        WITH SCHEMA 'tests/schema_a.yaml' VERSION 1 ;
+
+# load B
+B = LOAD TABLE 'file_blob' FROM 'tests/repo_a.yaml'
+        WITH SCHEMA 'tests/schema_b.yaml' VERSION 1;
+
+# join and compute
+C = JOIN A BY (A.a, A.aa), B BY (B.b, B.bb)
+        WITH SCHEMA PROJECTION (
+            COMPUTE my_function(A.aaa, B.bb, 'aaa', 123) AS func_field:INTEGER,
+            COMPUTE SUM(A.aa) AS sum_field:INTEGER,
+            COMPUTE A.aa + B.bb AS add_field:LONG
+        );
+
+# user formatted comments ahead of STORE C
+STORE C INTO TABLE 'table_name' FROM 'tests/repo_a.yaml';
