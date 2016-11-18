@@ -14,6 +14,8 @@ C = JOIN A BY (A.a, A.aa), B BY (B.b, B.bb)
             A.*,
             B.bbb,
             COMPUTE my_function(A.aaa, B.bb, 'aaa', 123) AS func_field:INTEGER,
+            COMPUTE xyz.package.my_function(A.aaa, B.bb, 'aaa', 123) AS pack_func_field:INTEGER,
+            COMPUTE A.a / SUM(A.aa) + 1.2 * A.aaa * (B.b + B.bb) AS complex_calc_field:INTEGER,
             COMPUTE SUM(A.aa) AS sum_field:INTEGER,
             COMPUTE A.aa + B.bb AS add_field:LONG
         );

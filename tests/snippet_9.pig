@@ -30,6 +30,8 @@ C = FOREACH JOIN_A_B GENERATE
     A.yet_another_column AS yet_another_column,
     B.bbb AS bbb,
     my_function(A.aaa, B.bb, 'aaa', 123) AS func_field,
+    xyz.package.my_function(A.aaa, B.bb, 'aaa', 123) AS pack_func_field,
+    A.a / SUM(A.aa) + 1.2 * A.aaa * (B.b + B.bb) AS complex_calc_field,
     SUM(A.aa) AS sum_field,
     A.aa + B.bb AS add_field
 ;
