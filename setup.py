@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name='sdpl',
-      version='0.2',
+      version='0.3',
       description='Schema Driven Processing Language',
       author='Bohdan Mushkevych',
       author_email='mushkevych@gmail.com',

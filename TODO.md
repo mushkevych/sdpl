@@ -9,6 +9,9 @@
     -> 
     C = FILTER A BY a == 3; 
 
+1. Perform `FOREACH ... GENERATE` output for `SCHEMA PROJECTION ( schemaFields )` if it contains `COMPUTE` construct. 
+Otherwise the computed fields will be lost. 
+
 ### version +2
 
 1. remove keyword `COMPUTE` 
