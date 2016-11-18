@@ -92,9 +92,20 @@ class PigGenerator(sdplListener):
             and enlists it into the `self.relations` - list of known relations
         """
         projection = RelationProjection(self.relations)
-        schema_fields = ctx_proj_fields.getTypedRuleContexts(sdplParser.SchemaFieldContext)
+        list_ctx_fields = ctx_proj_fields.getTypedRuleContexts(sdplParser.ProjectionFieldContext)
+
+        def _fetch_by_type(ctx_type:type):
+            _fields = list()
+            for ctx_proj_field in list_ctx_fields:
+                ctx_field = ctx_proj_field.getTypedRuleContexts(ctx_type)
+                if not ctx_field:
+                    continue
+                _fields.append(ctx_field[0])
+            return _fields
+
+        schema_fields = _fetch_by_type(sdplParser.SchemaFieldContext)
         self._parse_schema_fields(projection, schema_fields)
-        compute_fields = ctx_proj_fields.getTypedRuleContexts(sdplParser.ComputeDeclContext)
+        compute_fields = _fetch_by_type(sdplParser.ComputeDeclContext)
         self._parse_compute_expressions(projection, compute_fields)
 
         self.relations[relation_name] = projection.finalize_relation(relation_name)
