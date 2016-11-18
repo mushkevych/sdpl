@@ -9,7 +9,7 @@ from grammar.sdplParser import sdplParser
 from parser.relation import Relation
 from parser.data_source import DataSource
 from parser.data_sink import DataSink
-from parser.projection import RelationProjection
+from parser.projection import RelationProjection, ComputableField
 from parser.decorator import print_comments
 from parser.pig_schema import parse_datasink, parse_datasource, parse_schema
 
@@ -75,11 +75,32 @@ class PigGenerator(sdplListener):
             raise UserWarning('Unknown clause {0}. Expecting either LOAD SCHEMA ... or LOAD TABLE ...'
                               .format(clause))
 
-    def parse_schema_projection(self, relation_name, schema_fields: list)->RelationProjection:
+    @print_comments('--')
+    def exitProjectionDecl(self, ctx: sdplParser.ProjectionDeclContext):
+        # ID = SCHEMA PROJECTION ( schemaFields ) ;
+        # 0  1 2      3          4 5            6 7
+        # schemaFields:  schemaField (, schemaField)* ;
+        # schemaField :  (-)? ID . ( ID | *) (AS ID)? ;
+        relation_name = ctx.getChild(0).getText()
+        ctx_proj_fields = ctx.getTypedRuleContexts(sdplParser.ProjectionFieldsContext)
+        ctx_proj_fields = ctx_proj_fields[0]    # only one block of projection fields is expected
+        self.parse_schema_projection(relation_name, ctx_proj_fields)
+
+    def parse_schema_projection(self, relation_name:str, ctx_proj_fields:sdplParser.ProjectionFieldsContext) -> RelationProjection:
         """ method is the heart of the Schema Projection functionality:
             it reads the input, produces projected `Relation`
-            and enlists it into the `self.relations` - list of known relations """
+            and enlists it into the `self.relations` - list of known relations
+        """
         projection = RelationProjection(self.relations)
+        schema_fields = ctx_proj_fields.getTypedRuleContexts(sdplParser.SchemaFieldContext)
+        self._parse_schema_fields(projection, schema_fields)
+        compute_fields = ctx_proj_fields.getTypedRuleContexts(sdplParser.ComputeDeclContext)
+        self._parse_compute_expressions(projection, compute_fields)
+
+        self.relations[relation_name] = projection.finalize_relation(relation_name)
+        return projection
+
+    def _parse_schema_fields(self, projection:RelationProjection, schema_fields:list):
         for ctx_schema_field in schema_fields:
             assert isinstance(ctx_schema_field, sdplParser.SchemaFieldContext)
             if ctx_schema_field.getChildCount() <= 4:
@@ -109,20 +130,26 @@ class PigGenerator(sdplListener):
                 else:
                     projection.add(schema_name, field_name, as_field_name)
 
-        self.relations[relation_name] = projection.finalize_relation(relation_name)
-        return projection
+    def _parse_compute_expressions(self, projection:RelationProjection, compute_fields:list):
+        # COMPUTE computeExpression AS typedField ;
+        # 0       1                 2  3
+        # typedField      : ID:ID ;
+        for ctx_compute_decl in compute_fields:
+            assert isinstance(ctx_compute_decl, sdplParser.ComputeDeclContext)
+            ctx_compute_expression = ctx_compute_decl.getTypedRuleContexts(sdplParser.ComputeExpressionContext)
+            ctx_compute_expression = ctx_compute_expression[0]    # only one block of compute expressions is expected
 
-    @print_comments('--')
-    def exitProjectionDecl(self, ctx: sdplParser.ProjectionDeclContext):
-        # ID = SCHEMA PROJECTION ( schemaFields ) ;
-        # schemaFields:  schemaField (',' schemaField)* ;
-        # schemaField :  ('-')? ID '.' ( ID | '*') ('AS' ID)? ;
-        relation_name = ctx.getChild(0).getText()
-        ctx_schema_fields = ctx.getTypedRuleContexts(sdplParser.SchemaFieldsContext)
-        ctx_schema_fields = ctx_schema_fields[0]    # only one block of schema fields is expected
+            typed_field = ctx_compute_decl.children[-1]
+            field_name = typed_field.children[0].getText()
+            field_type = typed_field.children[-1].getText()
 
-        schema_fields = ctx_schema_fields.getTypedRuleContexts(sdplParser.SchemaFieldContext)
-        self.parse_schema_projection(relation_name, schema_fields)
+            # read full computing expression string
+            start_index = ctx_compute_expression.start.tokenIndex
+            stop_index = ctx_compute_expression.stop.tokenIndex
+            expression = self.token_stream.getText(interval=(start_index, stop_index))
+
+            comp_field = ComputableField(field_name, field_type, expression)
+            projection.new_field(comp_field)
 
     @print_comments('--')
     def exitExpandSchema(self, ctx:sdplParser.ExpandSchemaContext):
@@ -185,11 +212,9 @@ class PigGenerator(sdplListener):
         self._out('{0} = {1} ;'.format(join_name, join_body))
 
         # step 2: perform schema projection
-        ctx_schema_fields = ctx.getTypedRuleContexts(sdplParser.SchemaFieldsContext)
-        ctx_schema_fields = ctx_schema_fields[0]    # only one block of schema fields is expected
-
-        schema_fields = ctx_schema_fields.getTypedRuleContexts(sdplParser.SchemaFieldContext)
-        projection = self.parse_schema_projection(relation_name, schema_fields)
+        ctx_proj_fields = ctx.getTypedRuleContexts(sdplParser.ProjectionFieldsContext)
+        ctx_proj_fields = ctx_proj_fields[0]    # only one block of projection fields is expected
+        projection = self.parse_schema_projection(relation_name, ctx_proj_fields)
 
         # step 3: expand schema with FOREACH ... GENERATE
         self._out('{0} = FOREACH {1} GENERATE'.format(relation_name, join_name))

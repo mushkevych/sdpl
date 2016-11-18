@@ -59,6 +59,9 @@ class Schema(YAMLObject):
         self.fields = list()
 
     def __eq__(self, other):
+        # TODO: enforce bidirectional comparison
+        #       A holds all fields from B
+        #       B holds all fields from A
         for f in self.fields:
             if f not in other.fields:
                 return False
@@ -69,6 +72,13 @@ class Schema(YAMLObject):
             if f.name == item:
                 return f
         raise KeyError('{0} does not match any field in the schema'.format(item))
+
+    def __contains__(self, item):
+        field_name = item.name if isinstance(item, Field) else item
+        for f in self.fields:
+            if f.name == field_name:
+                return True
+        return False
 
     @property
     def version(self):

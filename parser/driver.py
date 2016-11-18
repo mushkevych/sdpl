@@ -16,7 +16,7 @@ def run_generator(input_file, output_stream, generator_class=PigGenerator):
     lexer = sdplLexer(input_stream)
     token_stream = CommonTokenStream(lexer)
     parser = sdplParser(token_stream)
-    tree = parser.startrule()
+    tree = parser.start_rule()
 
     walker = ParseTreeWalker()
     collector = PigGenerator(token_stream, output_stream)

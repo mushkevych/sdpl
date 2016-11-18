@@ -8,12 +8,12 @@ else:
 # This class defines a complete listener for a parse tree produced by sdplParser.
 class sdplListener(ParseTreeListener):
 
-    # Enter a parse tree produced by sdplParser#startrule.
-    def enterStartrule(self, ctx:sdplParser.StartruleContext):
+    # Enter a parse tree produced by sdplParser#start_rule.
+    def enterStart_rule(self, ctx:sdplParser.Start_ruleContext):
         pass
 
-    # Exit a parse tree produced by sdplParser#startrule.
-    def exitStartrule(self, ctx:sdplParser.StartruleContext):
+    # Exit a parse tree produced by sdplParser#start_rule.
+    def exitStart_rule(self, ctx:sdplParser.Start_ruleContext):
         pass
 
 
@@ -44,12 +44,21 @@ class sdplListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by sdplParser#schemaFields.
-    def enterSchemaFields(self, ctx:sdplParser.SchemaFieldsContext):
+    # Enter a parse tree produced by sdplParser#projectionFields.
+    def enterProjectionFields(self, ctx:sdplParser.ProjectionFieldsContext):
         pass
 
-    # Exit a parse tree produced by sdplParser#schemaFields.
-    def exitSchemaFields(self, ctx:sdplParser.SchemaFieldsContext):
+    # Exit a parse tree produced by sdplParser#projectionFields.
+    def exitProjectionFields(self, ctx:sdplParser.ProjectionFieldsContext):
+        pass
+
+
+    # Enter a parse tree produced by sdplParser#projectionField.
+    def enterProjectionField(self, ctx:sdplParser.ProjectionFieldContext):
+        pass
+
+    # Exit a parse tree produced by sdplParser#projectionField.
+    def exitProjectionField(self, ctx:sdplParser.ProjectionFieldContext):
         pass
 
 
@@ -59,6 +68,42 @@ class sdplListener(ParseTreeListener):
 
     # Exit a parse tree produced by sdplParser#schemaField.
     def exitSchemaField(self, ctx:sdplParser.SchemaFieldContext):
+        pass
+
+
+    # Enter a parse tree produced by sdplParser#computeDecl.
+    def enterComputeDecl(self, ctx:sdplParser.ComputeDeclContext):
+        pass
+
+    # Exit a parse tree produced by sdplParser#computeDecl.
+    def exitComputeDecl(self, ctx:sdplParser.ComputeDeclContext):
+        pass
+
+
+    # Enter a parse tree produced by sdplParser#computeExpression.
+    def enterComputeExpression(self, ctx:sdplParser.ComputeExpressionContext):
+        pass
+
+    # Exit a parse tree produced by sdplParser#computeExpression.
+    def exitComputeExpression(self, ctx:sdplParser.ComputeExpressionContext):
+        pass
+
+
+    # Enter a parse tree produced by sdplParser#arithmOperation.
+    def enterArithmOperation(self, ctx:sdplParser.ArithmOperationContext):
+        pass
+
+    # Exit a parse tree produced by sdplParser#arithmOperation.
+    def exitArithmOperation(self, ctx:sdplParser.ArithmOperationContext):
+        pass
+
+
+    # Enter a parse tree produced by sdplParser#typedField.
+    def enterTypedField(self, ctx:sdplParser.TypedFieldContext):
+        pass
+
+    # Exit a parse tree produced by sdplParser#typedField.
+    def exitTypedField(self, ctx:sdplParser.TypedFieldContext):
         pass
 
 
@@ -152,15 +197,6 @@ class sdplListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by sdplParser#filterOperand.
-    def enterFilterOperand(self, ctx:sdplParser.FilterOperandContext):
-        pass
-
-    # Exit a parse tree produced by sdplParser#filterOperand.
-    def exitFilterOperand(self, ctx:sdplParser.FilterOperandContext):
-        pass
-
-
     # Enter a parse tree produced by sdplParser#orderByDecl.
     def enterOrderByDecl(self, ctx:sdplParser.OrderByDeclContext):
         pass
@@ -179,15 +215,6 @@ class sdplListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by sdplParser#quotedString.
-    def enterQuotedString(self, ctx:sdplParser.QuotedStringContext):
-        pass
-
-    # Exit a parse tree produced by sdplParser#quotedString.
-    def exitQuotedString(self, ctx:sdplParser.QuotedStringContext):
-        pass
-
-
     # Enter a parse tree produced by sdplParser#quotedCode.
     def enterQuotedCode(self, ctx:sdplParser.QuotedCodeContext):
         pass
@@ -197,12 +224,57 @@ class sdplListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by sdplParser#operand.
+    def enterOperand(self, ctx:sdplParser.OperandContext):
+        pass
+
+    # Exit a parse tree produced by sdplParser#operand.
+    def exitOperand(self, ctx:sdplParser.OperandContext):
+        pass
+
+
+    # Enter a parse tree produced by sdplParser#functionExpression.
+    def enterFunctionExpression(self, ctx:sdplParser.FunctionExpressionContext):
+        pass
+
+    # Exit a parse tree produced by sdplParser#functionExpression.
+    def exitFunctionExpression(self, ctx:sdplParser.FunctionExpressionContext):
+        pass
+
+
+    # Enter a parse tree produced by sdplParser#functionName.
+    def enterFunctionName(self, ctx:sdplParser.FunctionNameContext):
+        pass
+
+    # Exit a parse tree produced by sdplParser#functionName.
+    def exitFunctionName(self, ctx:sdplParser.FunctionNameContext):
+        pass
+
+
+    # Enter a parse tree produced by sdplParser#quotedString.
+    def enterQuotedString(self, ctx:sdplParser.QuotedStringContext):
+        pass
+
+    # Exit a parse tree produced by sdplParser#quotedString.
+    def exitQuotedString(self, ctx:sdplParser.QuotedStringContext):
+        pass
+
+
     # Enter a parse tree produced by sdplParser#compOperator.
     def enterCompOperator(self, ctx:sdplParser.CompOperatorContext):
         pass
 
     # Exit a parse tree produced by sdplParser#compOperator.
     def exitCompOperator(self, ctx:sdplParser.CompOperatorContext):
+        pass
+
+
+    # Enter a parse tree produced by sdplParser#arithmOperator.
+    def enterArithmOperator(self, ctx:sdplParser.ArithmOperatorContext):
+        pass
+
+    # Exit a parse tree produced by sdplParser#arithmOperator.
+    def exitArithmOperator(self, ctx:sdplParser.ArithmOperatorContext):
         pass
 
 

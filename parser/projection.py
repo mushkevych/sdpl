@@ -4,7 +4,7 @@ import copy
 from collections import Counter
 
 from parser.relation import Relation
-from schema.sdpl_schema import Schema, Field
+from schema.sdpl_schema import Schema, Field, DataType
 
 
 def build_schema(*fields):
@@ -33,13 +33,32 @@ class FieldProjection(object):
         return '{0}.{1}'.format(self.schema_name, self.field_name)
 
 
+class ComputableField(object):
+    def __init__(self, field_name:str, data_type:DataType, expression:str):
+        self.field_name = field_name
+        self.field = Field(field_name, data_type)
+        self.expression = expression
+
+    def __str__(self):
+        return '{0} AS {1}'.format(self.expression, self.field_name)
+
+    @property
+    def schema_field(self):
+        return '{0}'.format(self.field_name)
+
+
 class RelationProjection(object):
     def __init__(self, relations):
         self.relations = relations
 
         # format list<FieldProjection>
         self.fields = list()
+
+        # format list<FieldProjection>
         self.fields_remove = list()
+
+        # format list<ComputableField>
+        self.computable_fields = list()
 
     def add_all(self, schema_name):
         schema = self.relations[schema_name].schema
@@ -60,6 +79,10 @@ class RelationProjection(object):
         schema = self.relations[schema_name].schema
         field_proj = FieldProjection(schema_name, field_name, schema[field_name])
         self.fields_remove.append(field_proj)
+
+    def new_field(self, comp_field:ComputableField):
+        """ adds a computable field """
+        self.computable_fields.append(comp_field)
 
     def finalize_relation(self, relation_name):
         """ NOTICE: produced relation holds Fields with NAME replaced by AS_FIELD_NAME"""
@@ -92,7 +115,10 @@ class RelationProjection(object):
         if duplicates:
             raise ValueError('fields {0} already present in the temporary schema'.format(sorted(duplicates)))
 
-        # Step 3: build the schema and return it to the caller wrapped in Relation
+        # Step 3: remove fields that are replaced by the `computable fields`
+        # TODO
+
+        # Step 4: build the schema and return it to the caller wrapped in Relation
         schema = build_schema(*[f.field for f in self.fields])
         relation = Relation(relation_name, None)
         relation._schema = schema
