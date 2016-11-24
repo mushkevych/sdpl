@@ -142,8 +142,8 @@ class PigGenerator(sdplListener):
                     projection.add(schema_name, field_name, as_field_name)
 
     def _parse_compute_expressions(self, projection:RelationProjection, compute_fields:list):
-        # COMPUTE computeExpression AS typedField ;
-        # 0       1                 2  3
+        # computeExpression AS typedField ;
+        # 0                 1  2
         # typedField      : ID:ID ;
         for ctx_compute_decl in compute_fields:
             assert isinstance(ctx_compute_decl, sdplParser.ComputeDeclContext)

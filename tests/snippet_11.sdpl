@@ -13,9 +13,9 @@ C = JOIN A BY (A.a, A.aa), B BY (B.b, B.bb)
         WITH SCHEMA PROJECTION (
             A.*,
             B.bbb,
-            COMPUTE my_function(A.aaa, B.bb, 'aaa', 123) AS func_field:INTEGER,
-            COMPUTE SUM(A.aa) AS bbb:INTEGER,
-            COMPUTE A.aa + B.bb AS add_field:LONG
+            my_function(A.aaa, B.bb, 'aaa', 123) AS func_field:INTEGER,
+            SUM(A.aa) AS bbb:INTEGER,
+            A.aa + B.bb AS add_field:LONG
         );
 
 # user formatted comments ahead of STORE C

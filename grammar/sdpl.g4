@@ -35,8 +35,8 @@ projectionDecl
 projectionFields    : projectionField (',' projectionField)* ;
 
 projectionField
-    : schemaField
-    | computeDecl
+    : computeDecl
+    | schemaField
     ;
 
 schemaField
@@ -45,7 +45,7 @@ schemaField
 
 // COMPUTE FUNCTION / ARITHMETIC
 computeDecl
-    : 'COMPUTE' computeExpression 'AS' typedField
+    : computeExpression 'AS' typedField
     ;
 
 computeExpression

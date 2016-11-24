@@ -14,7 +14,10 @@ Otherwise the computed fields will be lost.
 
 ### version +2
 
-1. remove keyword `COMPUTE` 
+1. Remove keyword `COMPUTE` 
+
+1. Add keyword `EXPLICIT` to the `SCHEMA PROJECTION` construct. If present
+the SDPL will issue `FOREACH ... GENERATE` whether the COMPUTE construct is found or not
 
 1. Parse `DataSink` and `DataSource` connection string to generate proper
 PigStorage/BinStorage/JsonStorage
