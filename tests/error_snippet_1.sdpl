@@ -1,6 +1,6 @@
 # ERROR: snippet lacks relation declarations and jumps straight into JOIN
 
 C = JOIN A BY (A.a), B BY (B.b)
-    WITH SCHEMA PROJECTION (A.*, B.b);
+    WITH PROJECTION (A.*, B.b);
 C = JOIN A BY (A.a, A.aa), B BY (B.b, B.bb), C BY (C.c, C.cc)
-    WITH SCHEMA PROJECTION (A.*, B.b, C.c);
+    WITH PROJECTION (A.*, B.b, C.c);

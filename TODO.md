@@ -2,7 +2,14 @@
 
 ### version +1
 
-1. Remove keyword `SCHEMA` from `SCHEMA PROJECTION` 
+1. Add `FROM` to the `ID = LOAD SCHEMA ... ;`
+
+1. Change:
+    
+    
+    `STORE SCHEMA ... INTO ... ;`
+    ->
+    `STORE ... INTO SCHEMA ... FROM ... ;` 
 
 ### version +2
 

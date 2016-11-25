@@ -10,7 +10,7 @@ B = LOAD TABLE 'file_blob' FROM 'tests/repo_a.yaml'
 
 # join and compute
 C = JOIN A BY (A.a, A.aa), B BY (B.b, B.bb)
-        WITH SCHEMA PROJECTION (
+        WITH PROJECTION (
             A.*,
             B.bbb,
             my_function(A.aaa, B.bb, 'aaa', 123) AS func_field:INTEGER,

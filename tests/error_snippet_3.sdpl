@@ -5,6 +5,6 @@ A = LOAD TABLE 'table_name' FROM 'tests/repo_a.yaml'
 V = LOAD TABLE 'file_blob' FROM 'tests/repo_a.yaml'
         WITH SCHEMA 'tests/schema_v.yaml' VERSION 2;
 
-D = JOIN A BY (A.a), V BY (V.v) WITH SCHEMA PROJECTION (A.*, V.high_version);
+D = JOIN A BY (A.a), V BY (V.v) WITH PROJECTION (A.*, V.high_version);
 
 STORE D INTO TABLE 'table_name' FROM 'tests/repo_a.yaml';

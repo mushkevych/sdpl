@@ -77,8 +77,8 @@ class PigGenerator(sdplListener):
 
     @print_comments('--')
     def exitProjectionDecl(self, ctx: sdplParser.ProjectionDeclContext):
-        # ID = SCHEMA PROJECTION ( projectionFields ) EMIT? ;
-        # 0  1 2      3          4 5            6 7?      8?
+        # ID = PROJECTION ( projectionFields ) NOEMIT? ;
+        # 0  1 2          3 4                5 7?      8?
         # projectionFields    : projectionField (',' projectionField)* ;
         # projectionField: computeDecl | schemaField ;
         # schemaFields:  schemaField (, schemaField)* ;
@@ -88,7 +88,7 @@ class PigGenerator(sdplListener):
         ctx_proj_fields = ctx_proj_fields[0]    # only one block of projection fields is expected
         projection = self.parse_schema_projection(relation_name, ctx_proj_fields)
 
-        is_silent = ctx.children[-2].getText() != 'EMIT'
+        is_silent = ctx.children[-2].getText() == 'NOEMIT'
         if is_silent:
             # schema is projected implicitly, i.e. without output
             return
@@ -99,7 +99,7 @@ class PigGenerator(sdplListener):
         output_fields = projection.fields + projection.computable_fields
         right_relations = set(field.schema_name for field in output_fields if field.schema_name)
         if len(right_relations) > 1:
-            raise UserWarning('More than one schema is referenced in SCHEMA PROJECTION: *{0}*'.format(right_relations))
+            raise UserWarning('More than one schema is referenced in PROJECTION: *{0}*'.format(right_relations))
 
         self.emit_schema_projection(projection, relation_name, right_relations.pop())
 
@@ -219,7 +219,7 @@ class PigGenerator(sdplListener):
 
     @print_comments('--')
     def exitJoinDecl(self, ctx: sdplParser.JoinDeclContext):
-        # ID = JOIN joinElement (, joinElement)+ WITH SCHEMA PROJECTION ( schemaFields );
+        # ID = JOIN joinElement (, joinElement)+ WITH PROJECTION ( projectionFields );
         # 0  1 2    3            4+
         # joinElement     :  ID 'BY' (relationColumn | relationColumns) ;
         # relationColumns :  '(' relationColumn (',' relationColumn)* ')' ;

@@ -20,7 +20,7 @@ libDecl
     ;
 
 
-// DECLARING AND DEFNING A RELATION OR A SCHEMA
+// DECLARING AND DEFINING A RELATION OR A SCHEMA
 relationDecl
     : ID '=' 'LOAD' 'SCHEMA' quotedString 'VERSION' INTEGER ';'
     | ID '=' 'LOAD' 'TABLE' quotedString 'FROM' quotedString 'WITH' 'SCHEMA' quotedString 'VERSION' INTEGER ';'
@@ -29,7 +29,7 @@ relationDecl
 
 // SCHEMA PROJECTION
 projectionDecl
-    : ID '=' 'SCHEMA' 'PROJECTION' '(' projectionFields ')' ('EMIT')? ';'
+    : ID '=' 'PROJECTION' '(' projectionFields ')' ('NOEMIT')? ';'
     ;
 
 projectionFields    : projectionField (',' projectionField)* ;
@@ -74,7 +74,7 @@ storeSchemaDecl : 'STORE' 'SCHEMA' ID 'INTO' quotedString ';' ;
 
 // JOINING
 joinDecl
-    : ID '=' 'JOIN' joinElement (',' joinElement)+ 'WITH' 'SCHEMA' 'PROJECTION' '(' projectionFields ')' ';'
+    : ID '=' 'JOIN' joinElement (',' joinElement)+ 'WITH' 'PROJECTION' '(' projectionFields ')' ';'
     ;
 joinElement     : ID 'BY' relationColumns ;
 
