@@ -10,15 +10,12 @@ setup(name='sdpl',
       package_data={'grammar': ['*']},
       long_description='SDPL introduces data schema to major data processing languages '
                        'such as Apache Pig, Spark and Hive. SDPL supports generic operations such as '
-                       'LOAD, STORE, JOIN, PROJECT, while complex transformation and fine-tuning '
-                       'are intended to be performed in the target language via quotation',
+                       'LOAD, STORE, JOIN, PROJECT, while complex transformations and fine-tunings '
+                       'are quoted in the target language',
       license='BSD 3-Clause License',
       classifiers=[
           'Development Status :: 4 - Beta',
-          'Environment :: Console',
-          'Intended Audience :: Developers',
           'Intended Audience :: Information Technology',
-          'Intended Audience :: System Administrators',
           'License :: OSI Approved :: BSD License',
           'Operating System :: POSIX',
           'Programming Language :: Python :: 3.5',
