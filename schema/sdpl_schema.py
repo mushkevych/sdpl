@@ -59,9 +59,9 @@ class Schema(YAMLObject):
         self.fields = list()
 
     def __eq__(self, other):
-        # TODO: enforce bidirectional comparison
-        #       A holds all fields from B
-        #       B holds all fields from A
+        if len(self.fields) != len(other.fields):
+            return False
+
         for f in self.fields:
             if f not in other.fields:
                 return False

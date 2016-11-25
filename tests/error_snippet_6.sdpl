@@ -1,0 +1,11 @@
+# ERROR: more than one schema is referenced in the SCHEMA PROJECTION
+
+A = LOAD TABLE 'table_name' FROM 'tests/repo_a.yaml'
+        WITH SCHEMA 'tests/schema_a.yaml' VERSION 1 ;
+
+B = LOAD TABLE 'file_blob' FROM 'tests/repo_a.yaml'
+        WITH SCHEMA 'tests/schema_b.yaml' VERSION 1;
+
+Z = SCHEMA PROJECTION (A.*, B.b, -A.aaa) EMIT;
+
+STORE SCHEMA Z INTO 'tests/schema_z.yaml';

@@ -48,8 +48,9 @@ class SdplPigUnitTest(unittest.TestCase):
 
                 # compare two files - .pig vs .out
                 with open(base_file_path, 'r') as base_file, open(output_file_path, 'r') as output_file:
-                        same = set(base_file).difference(output_file)
-                same.discard('\n')  # `same` is of type `set`
+                    # compute `set` with elements in either `base_file` or `output_file` but not both
+                    same = set(base_file).symmetric_difference(output_file)
+                same.discard('\n')
 
                 self.assertEqual(same, set(),
                                  'SDPL output for {0} does not match baseline: {1}'.format(full_path, same))

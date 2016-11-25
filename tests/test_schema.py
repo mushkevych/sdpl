@@ -138,7 +138,9 @@ class SchemaTest(unittest.TestCase):
 
         projection = RelationProjection(self.relations)
         projection.add_all('A')
-        projection.remove_all('B')
+        projection.remove('A', 'column')
+        projection.remove('A', 'another_column')
+        projection.remove('A', 'yet_another_column')
         self.assertEqual(schema, projection.finalize_relation('UT').schema)
 
     def test_projection_duplicates(self):

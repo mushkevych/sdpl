@@ -94,7 +94,7 @@ class RelationProjection(object):
             if duplicates:
                 raise ValueError('field {0} is duplicated in the temporary schema'.format(sorted(duplicates)))
 
-        # Step 1: Remove all the requested fields from `fields_add` collection
+        # Step 1: Remove all the requested fields from `fields` collection
         pop_indexes = set()
         schema_field_names = [f.schema_field for f in self.fields]
         for field_proj in self.fields_remove:

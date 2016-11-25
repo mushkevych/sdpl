@@ -77,14 +77,31 @@ class PigGenerator(sdplListener):
 
     @print_comments('--')
     def exitProjectionDecl(self, ctx: sdplParser.ProjectionDeclContext):
-        # ID = SCHEMA PROJECTION ( schemaFields ) ;
-        # 0  1 2      3          4 5            6 7
+        # ID = SCHEMA PROJECTION ( projectionFields ) EMIT? ;
+        # 0  1 2      3          4 5            6 7?      8?
+        # projectionFields    : projectionField (',' projectionField)* ;
+        # projectionField: computeDecl | schemaField ;
         # schemaFields:  schemaField (, schemaField)* ;
         # schemaField :  (-)? ID . ( ID | *) (AS ID)? ;
         relation_name = ctx.getChild(0).getText()
         ctx_proj_fields = ctx.getTypedRuleContexts(sdplParser.ProjectionFieldsContext)
         ctx_proj_fields = ctx_proj_fields[0]    # only one block of projection fields is expected
-        self.parse_schema_projection(relation_name, ctx_proj_fields)
+        projection = self.parse_schema_projection(relation_name, ctx_proj_fields)
+
+        is_silent = ctx.children[-2].getText() != 'EMIT'
+        if is_silent:
+            # schema is projected implicitly, i.e. without output
+            return
+
+        # perform schema output
+        # step 1: make sure we don't project from more than one schema
+        #         as this makes the FOREACH ... GENERATE loop impossible
+        output_fields = projection.fields + projection.computable_fields
+        right_relations = set(field.schema_name for field in output_fields if field.schema_name)
+        if len(right_relations) > 1:
+            raise UserWarning('More than one schema is referenced in SCHEMA PROJECTION: *{0}*'.format(right_relations))
+
+        self.emit_schema_projection(projection, relation_name, right_relations.pop())
 
     def parse_schema_projection(self, relation_name:str, ctx_proj_fields:sdplParser.ProjectionFieldsContext) -> RelationProjection:
         """ method is the heart of the Schema Projection functionality:
@@ -130,10 +147,10 @@ class PigGenerator(sdplListener):
 
             if field_name == '*':
                 if do_subtract:
-                    # `B.*` format
+                    # `-B.*` format
                     projection.remove_all(schema_name)
                 else:
-                    # `-B.*` format
+                    # `B.*` format
                     projection.add_all(schema_name)
             else:
                 if do_subtract:
@@ -161,6 +178,15 @@ class PigGenerator(sdplListener):
 
             comp_field = ComputableField(field_name, field_type, expression)
             projection.new_field(comp_field)
+
+    def emit_schema_projection(self, projection:RelationProjection, left_relation_name, right_relation_name):
+        """ method iterates over the projection and emits FOREACH ... GENERATE code
+            NOTICE: computable fields are placed at the tail of the GENERATE block """
+        output_fields = projection.fields + projection.computable_fields
+        self._out('{0} = FOREACH {1} GENERATE'.format(left_relation_name, right_relation_name))
+        output = ',\n    '.join([str(f) for f in output_fields])
+        self._out('    ' + output)
+        self._out(';')
 
     @print_comments('--')
     def exitExpandSchema(self, ctx:sdplParser.ExpandSchemaContext):
@@ -228,11 +254,7 @@ class PigGenerator(sdplListener):
         projection = self.parse_schema_projection(relation_name, ctx_proj_fields)
 
         # step 3: expand schema with FOREACH ... GENERATE
-        output_fields = projection.fields + projection.computable_fields
-        self._out('{0} = FOREACH {1} GENERATE'.format(relation_name, join_name))
-        output = ',\n    '.join([str(f) for f in output_fields])
-        self._out('    ' + output)
-        self._out(';')
+        self.emit_schema_projection(projection, relation_name, join_name)
 
     @print_comments('--')
     def exitFilterDecl(self, ctx: sdplParser.FilterDeclContext):

@@ -29,7 +29,7 @@ relationDecl
 
 // SCHEMA PROJECTION
 projectionDecl
-    : ID '=' 'SCHEMA' 'PROJECTION' '(' projectionFields ')' ';'
+    : ID '=' 'SCHEMA' 'PROJECTION' '(' projectionFields ')' ('EMIT')? ';'
     ;
 
 projectionFields    : projectionField (',' projectionField)* ;
