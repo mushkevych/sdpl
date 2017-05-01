@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from schema.sdpl_schema import Schema, Field, MIN_VERSION_NUMBER, VARCHAR_DEFAULT_LENGTH, DataType
+from schema.sdpl_schema import Schema, Field, MIN_VERSION_NUMBER, VARCHAR_DEFAULT_LENGTH, DataType, DataRepository
 from parser.data_sink import DataSink
 from parser.data_source import DataSource
 
@@ -23,7 +23,7 @@ def parse_field(field:Field):
         pgsql_type += '({0})'.format(length)
 
     out = '{0}\t{1}'.format(field.name, pgsql_type)
-    if field.is_nullable:
+    if not field.is_nullable:
         out += '\t{0}'.format('NOT NULL')
     if field.is_unique:
         out += '\t{0}'.format('UNIQUE')
@@ -48,3 +48,10 @@ def parse_datasink(data_sink:DataSink):
 
 def parse_datasource(data_source:DataSource):
     raise NotImplementedError('postgresql_schema.data_source not yet implemented')
+
+
+def compose_ddl(table_name:str, schema:Schema, max_version:int, data_repo:DataRepository):
+    out = 'CREATE TABLE IF NOT EXISTS {0}.{1} ('.format(data_repo.db, table_name)
+    out += parse_schema(schema, max_version)
+    out += ');\n'
+    return out

@@ -65,7 +65,8 @@ def create_schemas():
 
 def create_repo():
     # declare database/repository
-    repo_a = DataRepository('repo_a', 'host.the_company.xyz', '6789', 'mydb', 'the_user', 'the_password')
+    repo_a = DataRepository('host.the_company.xyz', '6789', 'mydb', 'the_user', 'the_password',
+                            'some short description')
     store(repo_a, os.path.join(TESTS_ROOT, 'repo_a.yaml'))
 
     schemas = {

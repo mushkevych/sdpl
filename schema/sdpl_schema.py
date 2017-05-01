@@ -92,18 +92,17 @@ class DataRepository(YAMLObject):
     """
     yaml_tag = '!DataRepository'
 
-    def __init__(self, name, host, port, db, user, password, **kwargs):
-        self.name = name
+    def __init__(self, host, port, db, user, password, description, **kwargs):
         self.host = host
         self.port = port
         self.db = db
         self.user = user
         self.password = password
+        self.description = description
         self.kwargs = kwargs
 
     def __eq__(self, other):
-        return self.name == other.name \
-               and self.host == other.host \
+        return self.host == other.host \
                and self.port == other.port \
                and self.db == other.db \
                and self.user == other.user \
