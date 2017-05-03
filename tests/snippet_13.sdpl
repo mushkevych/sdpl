@@ -1,4 +1,4 @@
-# snippet: schema projection with and without NOEMIT
+# snippet: data source for local file system and data sink for DB
 
 A = LOAD TABLE 'table_name' FROM 'tests/repo_dfs.yaml'
         WITH SCHEMA 'tests/schema_a.yaml' VERSION 1 ;

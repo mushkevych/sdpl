@@ -1,9 +1,9 @@
 # ERROR: during JOIN, computed fields `sum_field` is duplicated
 
-A = LOAD TABLE 'table_name' FROM 'tests/repo_a.yaml'
+A = LOAD TABLE 'table_name' FROM 'tests/repo_dfs.yaml'
         WITH SCHEMA 'tests/schema_a.yaml' VERSION 1 ;
 
-B = LOAD TABLE 'file_blob' FROM 'tests/repo_a.yaml'
+B = LOAD TABLE 'file_blob' FROM 'tests/repo_dfs.yaml'
         WITH SCHEMA 'tests/schema_b.yaml' VERSION 1;
 
 # crash
@@ -17,4 +17,4 @@ C = JOIN A BY (A.a, A.aa), B BY (B.b, B.bb)
         );
 
 # user formatted comments ahead of STORE C
-STORE C INTO TABLE 'table_name' FROM 'tests/repo_a.yaml';
+STORE C INTO TABLE 'table_name' FROM 'tests/repo_dfs.yaml';

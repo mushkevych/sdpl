@@ -1,0 +1,6 @@
+# ERROR: RDBMS data source is referenced
+
+A = LOAD TABLE 'table_name' FROM 'tests/repo_db.yaml'
+        WITH SCHEMA 'tests/schema_a.yaml' VERSION 1 ;
+
+STORE A INTO TABLE 'table_name' FROM 'tests/repo_dfs.yaml';

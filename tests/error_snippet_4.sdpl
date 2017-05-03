@@ -1,9 +1,9 @@
 # ERROR: during second JOIN, fields ['a', 'aa', 'aaa', 'b', 'bb', 'bbb']
 # are already present in the temporary schema
 
-A = LOAD TABLE 'table_name' FROM 'tests/repo_a.yaml'
+A = LOAD TABLE 'table_name' FROM 'tests/repo_dfs.yaml'
         WITH SCHEMA 'tests/schema_a.yaml' VERSION 1 ;
-B = LOAD TABLE 'file_blob' FROM 'tests/repo_a.yaml'
+B = LOAD TABLE 'file_blob' FROM 'tests/repo_dfs.yaml'
         WITH SCHEMA 'tests/schema_b.yaml' VERSION 1;
 
 C = JOIN A BY (A.a), B BY (B.b)
@@ -26,4 +26,4 @@ C = JOIN A BY (A.a, A.aa), B BY (B.b, B.bb), C BY (C.c, C.cc)
             -C.another_column,
             -C.yet_another_column);
 
-STORE C INTO TABLE 'table_name' FROM 'tests/repo_a.yaml';
+STORE C INTO TABLE 'table_name' FROM 'tests/repo_dfs.yaml';

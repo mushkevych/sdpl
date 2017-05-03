@@ -1,8 +1,0 @@
-!DataRepository
-db: mydb
-description: some short description
-host: host.the_company.xyz
-kwargs: {}
-password: the_password
-port: '6789'
-user: the_user

@@ -5,8 +5,8 @@ from schema.sdpl_schema import DataRepository
 from parser.relation import Relation
 
 
-class DataSink(object):
-    """ module links relation with the data sink (table name and repository)
+class DataStore(object):
+    """ module links relation with the data source/sink (table name and repository)
         relation is versioned - i.e. fields with higher version than provided are excluded from processing
     """
 

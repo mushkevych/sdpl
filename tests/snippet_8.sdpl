@@ -1,15 +1,15 @@
 # snippet: testing comments
 
 # user formatted comments    ahead of relation A
-A = LOAD TABLE 'table_name' FROM 'tests/repo_a.yaml'
+A = LOAD TABLE 'table_name' FROM 'tests/repo_dfs.yaml'
         WITH SCHEMA 'tests/schema_a.yaml' VERSION 1 ;
 
 # user formatted comments ahead of relation B
-B = LOAD TABLE 'file_blob' FROM 'tests/repo_a.yaml'
+B = LOAD TABLE 'file_blob' FROM 'tests/repo_dfs.yaml'
         WITH SCHEMA 'tests/schema_b.yaml' VERSION 1;
 
 # user formatted comments ahead of JOIN C
 C = JOIN A BY (A.a, A.aa), B BY (B.b, B.bb) WITH PROJECTION (A.*, B.bbb);
 
 # user formatted comments ahead of STORE C
-STORE C INTO TABLE 'table_name' FROM 'tests/repo_a.yaml';
+STORE C INTO TABLE 'table_name' FROM 'tests/repo_dfs.yaml';

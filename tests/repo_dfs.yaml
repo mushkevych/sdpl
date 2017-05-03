@@ -1,0 +1,11 @@
+!DataRepository
+description: data repository describing access to the remote distributed filesystem
+db: /path/within/bucket/
+host: s3://my_bucket.s3.amazonaws.com
+port: 443
+user: the_user
+password: the_password
+data_type: CSV
+repo_type: FILE
+compression: SNAPPY
+kwargs: {}

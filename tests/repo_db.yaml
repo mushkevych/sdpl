@@ -1,0 +1,11 @@
+!DataRepository
+description: data repository describing access to the RDBMS database
+db: mydb
+host: host.the_company.xyz
+port: '6789'
+user: the_user
+password: the_password
+data_type: BIN
+repo_type: DATABASE
+compression: NONE
+kwargs: {}

@@ -5,7 +5,7 @@ import traceback
 import unittest
 
 from schema.io import load, store
-from schema.sdpl_schema import DataRepository, Schema, Field, DataType
+from schema.sdpl_schema import DataRepository, Schema, Field, FieldType
 from parser.projection import RelationProjection
 from parser.relation import Relation
 
@@ -14,43 +14,43 @@ TESTS_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 def create_schemas():
     schema_a = Schema()
-    schema_a.fields.append(Field('a', DataType.CHARARRAY))
-    schema_a.fields.append(Field('aa', DataType.CHARARRAY))
-    schema_a.fields.append(Field('aaa', DataType.CHARARRAY))
-    schema_a.fields.append(Field('column', DataType.BOOLEAN))
-    schema_a.fields.append(Field('another_column', DataType.BOOLEAN))
-    schema_a.fields.append(Field('yet_another_column', DataType.BOOLEAN))
+    schema_a.fields.append(Field('a', FieldType.CHARARRAY))
+    schema_a.fields.append(Field('aa', FieldType.CHARARRAY))
+    schema_a.fields.append(Field('aaa', FieldType.CHARARRAY))
+    schema_a.fields.append(Field('column', FieldType.BOOLEAN))
+    schema_a.fields.append(Field('another_column', FieldType.BOOLEAN))
+    schema_a.fields.append(Field('yet_another_column', FieldType.BOOLEAN))
     # store schema
     store(schema_a, os.path.join(TESTS_ROOT, 'schema_a.yaml'))
 
     schema_b = Schema()
-    schema_b.fields.append(Field('b', DataType.INTEGER))
-    schema_b.fields.append(Field('bb', DataType.INTEGER))
-    schema_b.fields.append(Field('bbb', DataType.INTEGER))
-    schema_b.fields.append(Field('column', DataType.BOOLEAN))
-    schema_b.fields.append(Field('another_column', DataType.BOOLEAN))
-    schema_b.fields.append(Field('yet_another_column', DataType.BOOLEAN))
+    schema_b.fields.append(Field('b', FieldType.INTEGER))
+    schema_b.fields.append(Field('bb', FieldType.INTEGER))
+    schema_b.fields.append(Field('bbb', FieldType.INTEGER))
+    schema_b.fields.append(Field('column', FieldType.BOOLEAN))
+    schema_b.fields.append(Field('another_column', FieldType.BOOLEAN))
+    schema_b.fields.append(Field('yet_another_column', FieldType.BOOLEAN))
     # store schema
     store(schema_b, os.path.join(TESTS_ROOT, 'schema_b.yaml'))
 
     schema_c = Schema()
-    schema_c.fields.append(Field('c', DataType.LONG))
-    schema_c.fields.append(Field('cc', DataType.LONG))
-    schema_c.fields.append(Field('ccc', DataType.LONG))
-    schema_c.fields.append(Field('column', DataType.BOOLEAN))
-    schema_c.fields.append(Field('another_column', DataType.BOOLEAN))
-    schema_c.fields.append(Field('yet_another_column', DataType.BOOLEAN))
+    schema_c.fields.append(Field('c', FieldType.LONG))
+    schema_c.fields.append(Field('cc', FieldType.LONG))
+    schema_c.fields.append(Field('ccc', FieldType.LONG))
+    schema_c.fields.append(Field('column', FieldType.BOOLEAN))
+    schema_c.fields.append(Field('another_column', FieldType.BOOLEAN))
+    schema_c.fields.append(Field('yet_another_column', FieldType.BOOLEAN))
     # store schema
     store(schema_c, os.path.join(TESTS_ROOT, 'schema_c.yaml'))
 
     schema_v = Schema()
-    schema_v.fields.append(Field('v', DataType.LONG))
-    schema_v.fields.append(Field('vv', DataType.LONG))
-    schema_v.fields.append(Field('vvv', DataType.LONG))
-    schema_v.fields.append(Field('column', DataType.BOOLEAN))
-    schema_v.fields.append(Field('min_version', DataType.BOOLEAN))
-    schema_v.fields.append(Field('middle_version', DataType.BOOLEAN, version=2))
-    schema_v.fields.append(Field('high_version', DataType.BOOLEAN, version=4))
+    schema_v.fields.append(Field('v', FieldType.LONG))
+    schema_v.fields.append(Field('vv', FieldType.LONG))
+    schema_v.fields.append(Field('vvv', FieldType.LONG))
+    schema_v.fields.append(Field('column', FieldType.BOOLEAN))
+    schema_v.fields.append(Field('min_version', FieldType.BOOLEAN))
+    schema_v.fields.append(Field('middle_version', FieldType.BOOLEAN, version=2))
+    schema_v.fields.append(Field('high_version', FieldType.BOOLEAN, version=4))
     # store schema
     store(schema_v, os.path.join(TESTS_ROOT, 'schema_v.yaml'))
 
@@ -119,13 +119,13 @@ class SchemaTest(unittest.TestCase):
 
     def test_projection(self):
         schema = Schema()
-        schema.fields.append(Field('a', DataType.CHARARRAY))
-        schema.fields.append(Field('aa', DataType.CHARARRAY))
-        schema.fields.append(Field('aaa', DataType.CHARARRAY))
-        schema.fields.append(Field('column', DataType.BOOLEAN))
-        schema.fields.append(Field('another_column', DataType.BOOLEAN))
-        schema.fields.append(Field('yet_another_column', DataType.BOOLEAN))
-        schema.fields.append(Field('bbb', DataType.INTEGER))
+        schema.fields.append(Field('a', FieldType.CHARARRAY))
+        schema.fields.append(Field('aa', FieldType.CHARARRAY))
+        schema.fields.append(Field('aaa', FieldType.CHARARRAY))
+        schema.fields.append(Field('column', FieldType.BOOLEAN))
+        schema.fields.append(Field('another_column', FieldType.BOOLEAN))
+        schema.fields.append(Field('yet_another_column', FieldType.BOOLEAN))
+        schema.fields.append(Field('bbb', FieldType.INTEGER))
 
         projection = RelationProjection(self.relations)
         projection.add_all('A')
@@ -133,9 +133,9 @@ class SchemaTest(unittest.TestCase):
         self.assertEqual(schema, projection.finalize_relation('UT').schema)
 
         schema = Schema()
-        schema.fields.append(Field('a', DataType.CHARARRAY))
-        schema.fields.append(Field('aa', DataType.CHARARRAY))
-        schema.fields.append(Field('aaa', DataType.CHARARRAY))
+        schema.fields.append(Field('a', FieldType.CHARARRAY))
+        schema.fields.append(Field('aa', FieldType.CHARARRAY))
+        schema.fields.append(Field('aaa', FieldType.CHARARRAY))
 
         projection = RelationProjection(self.relations)
         projection.add_all('A')
@@ -146,15 +146,15 @@ class SchemaTest(unittest.TestCase):
 
     def test_projection_duplicates(self):
         schema = Schema()
-        schema.fields.append(Field('a', DataType.CHARARRAY))
-        schema.fields.append(Field('aa', DataType.CHARARRAY))
-        schema.fields.append(Field('aaa', DataType.CHARARRAY))
-        schema.fields.append(Field('column', DataType.BOOLEAN))
-        schema.fields.append(Field('another_column', DataType.BOOLEAN))
-        schema.fields.append(Field('yet_another_column', DataType.BOOLEAN))
-        schema.fields.append(Field('b', DataType.INTEGER))
-        schema.fields.append(Field('bb', DataType.INTEGER))
-        schema.fields.append(Field('bbb', DataType.INTEGER))
+        schema.fields.append(Field('a', FieldType.CHARARRAY))
+        schema.fields.append(Field('aa', FieldType.CHARARRAY))
+        schema.fields.append(Field('aaa', FieldType.CHARARRAY))
+        schema.fields.append(Field('column', FieldType.BOOLEAN))
+        schema.fields.append(Field('another_column', FieldType.BOOLEAN))
+        schema.fields.append(Field('yet_another_column', FieldType.BOOLEAN))
+        schema.fields.append(Field('b', FieldType.INTEGER))
+        schema.fields.append(Field('bb', FieldType.INTEGER))
+        schema.fields.append(Field('bbb', FieldType.INTEGER))
 
         projection = RelationProjection(self.relations)
         projection.add_all('A')
@@ -166,18 +166,18 @@ class SchemaTest(unittest.TestCase):
         self.assertEqual(schema, projection.finalize_relation('UT').schema)
 
         schema = Schema()
-        schema.fields.append(Field('a', DataType.CHARARRAY))
-        schema.fields.append(Field('aa', DataType.CHARARRAY))
-        schema.fields.append(Field('aaa', DataType.CHARARRAY))
-        schema.fields.append(Field('column', DataType.BOOLEAN))
-        schema.fields.append(Field('another_column', DataType.BOOLEAN))
-        schema.fields.append(Field('yet_another_column', DataType.BOOLEAN))
-        schema.fields.append(Field('b', DataType.INTEGER))
-        schema.fields.append(Field('bb', DataType.INTEGER))
-        schema.fields.append(Field('bbb', DataType.INTEGER))
-        schema.fields.append(Field('c', DataType.LONG))
-        schema.fields.append(Field('cc', DataType.LONG))
-        schema.fields.append(Field('ccc', DataType.LONG))
+        schema.fields.append(Field('a', FieldType.CHARARRAY))
+        schema.fields.append(Field('aa', FieldType.CHARARRAY))
+        schema.fields.append(Field('aaa', FieldType.CHARARRAY))
+        schema.fields.append(Field('column', FieldType.BOOLEAN))
+        schema.fields.append(Field('another_column', FieldType.BOOLEAN))
+        schema.fields.append(Field('yet_another_column', FieldType.BOOLEAN))
+        schema.fields.append(Field('b', FieldType.INTEGER))
+        schema.fields.append(Field('bb', FieldType.INTEGER))
+        schema.fields.append(Field('bbb', FieldType.INTEGER))
+        schema.fields.append(Field('c', FieldType.LONG))
+        schema.fields.append(Field('cc', FieldType.LONG))
+        schema.fields.append(Field('ccc', FieldType.LONG))
 
         projection = RelationProjection(self.relations)
         projection.add_all('A')

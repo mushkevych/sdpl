@@ -2,12 +2,12 @@
 
 REGISTER 'file://path_to_library' AS first_library;
 
-A = LOAD TABLE 'table_name' FROM 'tests/repo_a.yaml'
+A = LOAD TABLE 'table_name' FROM 'tests/repo_dfs.yaml'
         WITH SCHEMA 'tests/schema_a.yaml' VERSION 1 ;
 
-B = LOAD TABLE 'file_blob' FROM 'tests/repo_a.yaml'
+B = LOAD TABLE 'file_blob' FROM 'tests/repo_dfs.yaml'
         WITH SCHEMA 'tests/schema_b.yaml' VERSION 1;
-C = LOAD TABLE 'file_name' FROM 'tests/repo_a.yaml'
+C = LOAD TABLE 'file_name' FROM 'tests/repo_dfs.yaml'
         WITH SCHEMA 'tests/schema_c.yaml' VERSION 1;
 
 D = JOIN A BY (A.a), B BY (B.b)
@@ -16,6 +16,6 @@ D = JOIN A BY (A.a), B BY (B.b)
 E = JOIN C BY (C.c), D BY (D.new_column)
         WITH PROJECTION (C.*, D.new_column, D.column AS renamed_column);
 
-STORE D INTO TABLE 'table_name' FROM 'tests/repo_a.yaml';
+STORE D INTO TABLE 'table_name' FROM 'tests/repo_dfs.yaml';
 
 

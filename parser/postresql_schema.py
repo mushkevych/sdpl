@@ -1,24 +1,22 @@
 __author__ = 'Bohdan Mushkevych'
 
-from schema.sdpl_schema import Schema, Field, MIN_VERSION_NUMBER, VARCHAR_DEFAULT_LENGTH, DataType, DataRepository
-from parser.data_sink import DataSink
-from parser.data_source import DataSource
-
+from schema.sdpl_schema import Schema, Field, MIN_VERSION_NUMBER, VARCHAR_DEFAULT_LENGTH, FieldType
+from parser.data_store import DataStore
 
 PGSQL_MAPPING = {
-    DataType.INTEGER.name: 'INTEGER',
-    DataType.LONG.name: 'BIGINT',
-    DataType.FLOAT.name: 'DOUBLE PRECISION',
-    DataType.CHARARRAY.name: 'VARCHAR',
-    DataType.BYTEARRAY.name: 'BYTEA',
-    DataType.BOOLEAN.name: 'BOOLEAN',
-    DataType.DATETIME.name: 'TIMESTAMP',
+    FieldType.INTEGER.name: 'INTEGER',
+    FieldType.LONG.name: 'BIGINT',
+    FieldType.FLOAT.name: 'DOUBLE PRECISION',
+    FieldType.CHARARRAY.name: 'VARCHAR',
+    FieldType.BYTEARRAY.name: 'BYTEA',
+    FieldType.BOOLEAN.name: 'BOOLEAN',
+    FieldType.DATETIME.name: 'TIMESTAMP',
 }
 
 
-def parse_field(field:Field):
-    pgsql_type = PGSQL_MAPPING[field.data_type]
-    if field.data_type == 'CHARARRAY':
+def parse_field(field: Field):
+    pgsql_type = PGSQL_MAPPING[field.field_type]
+    if field.field_type == 'CHARARRAY':
         length = field.max_length if field.max_length else VARCHAR_DEFAULT_LENGTH
         pgsql_type += '({0})'.format(length)
 
@@ -35,23 +33,38 @@ def parse_field(field:Field):
     return out
 
 
-def parse_schema(schema:Schema, max_version=MIN_VERSION_NUMBER):
+def parse_schema(schema: Schema, max_version=MIN_VERSION_NUMBER):
     filtered_fields = [f for f in schema.fields if f.version <= max_version]
     out = ',\n    '.join([parse_field(field) for field in filtered_fields])
     out = '\n    ' + out + '\n'
     return out
 
 
-def parse_datasink(data_sink:DataSink):
-    raise NotImplementedError('postgresql_schema.parse_datasink not yet implemented')
+def parse_datasink(data_sink: DataStore):
+    field_names = [f.name for f in data_sink.relation.schema.fields]
+    values = ['?' for _ in range(len(field_names))]
+
+    out = '\n'
+    out += "REGISTER /var/lib/sdpl/postgresql-42.0.0.jar ;\n"
+    out += "REGISTER /var/lib/sdpl/piggybank-0.16.0.jar ;\n"
+    out += "STORE my_result INTO 'hdfs:///unused-ignore'"
+    out += " USING org.apache.pig.piggybank.storage.DBStorage"
+    out += "('org.postgresql.Driver',"
+    out += " 'jdbc:postgresql://{0}:{1}/{2}',".format(data_sink.data_repository.host,
+                                                      data_sink.data_repository.port,
+                                                      data_sink.data_repository.db)
+    out += " '{0}', '{1}',".format(data_sink.data_repository.user, data_sink.data_repository.password)
+    out += " 'INSERT INTO {0} ({1}) VALUES ({2})'".format(data_sink.table_name, ','.join(field_names), ','.join(values))
+    out += ');\n'
+    return out
 
 
-def parse_datasource(data_source:DataSource):
-    raise NotImplementedError('postgresql_schema.data_source not yet implemented')
+def parse_datasource(data_source: DataStore):
+    raise NotImplementedError('postgresql_schema.data_source is not supported')
 
 
-def compose_ddl(table_name:str, schema:Schema, max_version:int, data_repo:DataRepository):
-    out = 'CREATE TABLE IF NOT EXISTS {0}.{1} ('.format(data_repo.db, table_name)
+def compose_ddl(table_name: str, schema: Schema, max_version: int):
+    out = 'CREATE TABLE IF NOT EXISTS {0} ('.format(table_name)
     out += parse_schema(schema, max_version)
     out += ');\n'
     return out

@@ -1,12 +1,12 @@
 # snippet: including reserved keywords AND and OR as part of the relation names
 
-ANDA = LOAD TABLE 'table_name' FROM 'tests/repo_a.yaml'
+ANDA = LOAD TABLE 'table_name' FROM 'tests/repo_dfs.yaml'
         WITH SCHEMA 'tests/schema_a.yaml' VERSION 1 ;
-BANDA = LOAD TABLE 'file_blob' FROM 'tests/repo_a.yaml'
+BANDA = LOAD TABLE 'file_blob' FROM 'tests/repo_dfs.yaml'
         WITH SCHEMA 'tests/schema_b.yaml' VERSION 1;
 
 ORO = FILTER ANDA BY A.a == 3 AND (A.aa >= 0 OR A.aaa < -100);
 BORO = FILTER BANDA BY B.b != 'Bebe' OR B.bb == 'Zeze';
 
-STORE ANDA INTO TABLE 'table_name_c' FROM 'tests/repo_a.yaml';
-STORE BORO INTO TABLE 'table_name_d' FROM 'tests/repo_a.yaml';
+STORE ANDA INTO TABLE 'table_name_c' FROM 'tests/repo_dfs.yaml';
+STORE BORO INTO TABLE 'table_name_d' FROM 'tests/repo_dfs.yaml';

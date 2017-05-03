@@ -1,38 +1,76 @@
 __author__ = 'Bohdan Mushkevych'
 
-from schema.sdpl_schema import Schema, Field, MIN_VERSION_NUMBER
-from parser.data_sink import DataSink
-from parser.data_source import DataSource
+from schema.sdpl_schema import Schema, Field, MIN_VERSION_NUMBER, DataType, Compression
+from parser.data_store import DataStore
 
 
-def parse_field(field:Field):
-    out = '{0}:{1}'.format(field.name, field.data_type)
+def parse_field(field: Field):
+    out = '{0}:{1}'.format(field.name, field.field_type)
     return out
 
 
-def parse_schema(schema:Schema, max_version=MIN_VERSION_NUMBER):
+def parse_schema(schema: Schema, max_version=MIN_VERSION_NUMBER):
     filtered_fields = [f for f in schema.fields if f.version <= max_version]
     out = ',\n    '.join([parse_field(field) for field in filtered_fields])
     out = '\n    ' + out + '\n'
     return out
 
 
-def parse_datasink(data_sink:DataSink):
-    # TODO: add specifics via USING PigStorage/BinStorage/JsonStorage
-    load_string = "STORE INTO '{0}:{1}/{2}/{3}' USING PigStorage(',') ;".format(
-        data_sink.data_repository.host,
-        data_sink.data_repository.port,
-        data_sink.data_repository.db,
-        data_sink.table_name)
+def parse_datasink(data_sink: DataStore):
+    if data_sink.data_repository.data_type == DataType.CSV:
+        store_function = "PigStorage(',')"
+    elif data_sink.data_repository.data_type == DataType.TSV:
+        store_function = "PigStorage()"
+    elif data_sink.data_repository.data_type == DataType.BIN:
+        store_function = "BinStorage()"
+    elif data_sink.data_repository.data_type == DataType.JSON:
+        store_function = "JsonStorage()"
+    elif data_sink.data_repository.data_type == DataType.ORC:
+        is_snappy = data_sink.data_repository.compression == Compression.SNAPPY
+        store_function = "OrcStorage('-c SNAPPY')" if is_snappy else "OrcStorage()"
+    else:
+        store_function = "PigStorage()"
+
+    if not data_sink.data_repository.host:
+        # local file system
+        fqfp = '/{0}/{1}'.format(data_sink.data_repository.db.strip('/'),
+                                 data_sink.table_name)
+    else:
+        # distributed file system
+        fqfp = '{0}:{1}/{2}/{3}'.format(data_sink.data_repository.host.strip('/'),
+                                        data_sink.data_repository.port,
+                                        data_sink.data_repository.db.strip('/'),
+                                        data_sink.table_name)
+
+    load_string = "STORE {0} INTO '{1}' USING {2} ;".format(data_sink.relation.name, fqfp, store_function)
     return load_string
 
 
-def parse_datasource(data_source:DataSource):
-    # TODO: add specifics via USING PigStorage/BinStorage/JsonStorage
-    load_string = "LOAD '{0}:{1}/{2}/{3}' USING PigStorage(',') AS ({4})".format(
-        data_source.data_repository.host,
-        data_source.data_repository.port,
-        data_source.data_repository.db,
-        data_source.table_name,
-        parse_schema(data_source.relation.schema))
+def parse_datasource(data_source: DataStore):
+    if data_source.data_repository.data_type == DataType.CSV:
+        load_function = "PigStorage(',')"
+    elif data_source.data_repository.data_type == DataType.TSV:
+        load_function = "PigStorage()"
+    elif data_source.data_repository.data_type == DataType.BIN:
+        load_function = "BinStorage()"
+    elif data_source.data_repository.data_type == DataType.JSON:
+        load_function = "JsonLoader()"
+    elif data_source.data_repository.data_type == DataType.ORC:
+        is_snappy = data_source.data_repository.compression == Compression.SNAPPY
+        load_function = "OrcStorage('-c SNAPPY')" if is_snappy else "OrcStorage()"
+    else:
+        load_function = "PigStorage()"
+
+    if not data_source.data_repository.host:
+        # local file system
+        fqfp = '/{0}/{1}'.format(data_source.data_repository.db.strip('/'),
+                                 data_source.table_name)
+    else:
+        # distributed file system
+        fqfp = '{0}:{1}/{2}/{3}'.format(data_source.data_repository.host.strip('/'),
+                                        data_source.data_repository.port,
+                                        data_source.data_repository.db.strip('/'),
+                                        data_source.table_name)
+
+    load_string = "LOAD '{0}' USING {1} AS ({2})".format(fqfp, load_function, parse_schema(data_source.relation.schema))
     return load_string

@@ -1,0 +1,10 @@
+!DataRepository
+description: data repository describing access to the local filesystem
+db: /data/hive/db_name/
+host: null
+port: null
+user: null
+password: null
+data_type: TSV
+repo_type: FILE
+kwargs: {}

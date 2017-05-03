@@ -28,7 +28,6 @@ def init_parser():
     postgresql_parser = subparsers.add_parser('postgresql',
                                               help='compile given SCHEMA file into PostgreSql *CREATE TABLE* SQL')
     postgresql_parser.add_argument('-s', '--schema', action='store', help='SCHEMA input file')
-    postgresql_parser.add_argument('-r', '--repo', action='store', help='RDBMS repository')
     postgresql_parser.add_argument('-t', '--table', action='store',
                                    help='fully qualified table name in format db_schema.table_name')
     postgresql_parser.add_argument('-o', '--outfile', action='store', help='SQL output file')
@@ -61,7 +60,7 @@ def compile_pig(parser_args):
 
 
 def compile_postgresql(parser_args):
-    if not parser_args.schema or not parser_args.repo:
+    if not parser_args.schema or not parser_args.table:
         print('ERROR: Input is incomplete\n')
         parser_args.parser.parse_args(['postgresql', '-h'])
         exit(1)
@@ -73,9 +72,8 @@ def compile_postgresql(parser_args):
         output_stream = open(parser_args.outfile, 'w')
 
     schema = load(parser_args.schema)
-    data_repo = load(parser_args.repo)
     assert isinstance(schema, Schema)
-    output_stream.write(compose_ddl(schema, schema.version, data_repo))
+    output_stream.write(compose_ddl(parser_args.table, schema, schema.version))
 
 
 def load_all_tests():

@@ -5,7 +5,7 @@ from collections import Counter
 from typing import Union
 
 from parser.relation import Relation
-from schema.sdpl_schema import Schema, Field, DataType
+from schema.sdpl_schema import Schema, Field, FieldType
 
 
 def build_schema(*fields):
@@ -35,9 +35,9 @@ class FieldProjection(object):
 
 
 class ComputableField(object):
-    def __init__(self, field_name:str, data_type:Union[DataType, str], expression:str):
+    def __init__(self, field_name:str, field_type:Union[FieldType, str], expression:str):
         self.field_name = field_name
-        field_type = DataType[data_type] if isinstance(data_type, str) else data_type
+        field_type = FieldType[field_type] if isinstance(field_type, str) else field_type
         self.field = Field(field_name, field_type)
         self.expression = expression
 

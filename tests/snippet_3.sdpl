@@ -6,15 +6,15 @@
 
 # snippet: register libraries, schema projections, schema subtraction
 
-A = LOAD TABLE 'table_name' FROM 'tests/repo_a.yaml'
+A = LOAD TABLE 'table_name' FROM 'tests/repo_dfs.yaml'
         WITH SCHEMA 'tests/schema_a.yaml' VERSION 1 ;
-B = LOAD TABLE 'file_blob' FROM 'tests/repo_a.yaml'
+B = LOAD TABLE 'file_blob' FROM 'tests/repo_dfs.yaml'
         WITH SCHEMA 'tests/schema_b.yaml' VERSION 1;
-C = LOAD TABLE 'file_name' FROM 'tests/repo_a.yaml'
+C = LOAD TABLE 'file_name' FROM 'tests/repo_dfs.yaml'
         WITH SCHEMA 'tests/schema_c.yaml' VERSION 1;
 
 D = PROJECTION (A.*, B.b) NOEMIT;
 E = PROJECTION (D.*, C.c, -B.*) NOEMIT;
 
-STORE E INTO TABLE 'table_name' FROM 'tests/repo_a.yaml';
+STORE E INTO TABLE 'table_name' FROM 'tests/repo_dfs.yaml';
 

@@ -1,14 +1,15 @@
 __author__ = 'Bohdan Mushkevych'
 
-from yaml import YAMLObject
+from typing import Union
 from enum import Enum, unique
+from yaml import YAMLObject
 
 VARCHAR_DEFAULT_LENGTH = 256
 MIN_VERSION_NUMBER = 1
 
 
 @unique
-class DataType(Enum):
+class FieldType(Enum):
     INTEGER = 1
     LONG = 2
     FLOAT = 3
@@ -26,12 +27,12 @@ class Field(YAMLObject):
     """
     yaml_tag = '!Field'
 
-    def __init__(self, name: str, data_type: DataType, is_nullable: bool = None, is_unique: bool = None,
+    def __init__(self, name: str, field_type: FieldType, is_nullable: bool = None, is_unique: bool = None,
                  is_primary_key: bool = None, max_length: int = None, default=None, version=MIN_VERSION_NUMBER):
         assert version >= MIN_VERSION_NUMBER, 'Version number for field {0} must be a positive integer'.format(name)
 
         self.name = name
-        self.data_type = data_type.name
+        self.field_type = field_type.name
         self.is_nullable = is_nullable
         self.is_unique = is_unique
         self.is_primary_key = is_primary_key
@@ -43,7 +44,7 @@ class Field(YAMLObject):
         """ compares two fields.
             NOTICE: `version` field is not considered """
         return self.name == other.name \
-               and self.data_type == other.data_type \
+               and self.field_type == other.field_type \
                and self.is_nullable == other.is_nullable \
                and self.is_unique == other.is_unique \
                and self.is_primary_key == other.is_primary_key \
@@ -86,19 +87,49 @@ class Schema(YAMLObject):
         return max([f.version for f in self.fields])
 
 
+@unique
+class DataType(Enum):
+    CSV = 1  # comma-separated values
+    TSV = 2  # tab-separated values
+    BIN = 3  # binary data
+    ORC = 4  # hive file format
+    JSON = 5
+
+
+@unique
+class RepositoryType(Enum):
+    FILE = 1
+    DATABASE = 2
+
+
+@unique
+class Compression(Enum):
+    NONE = 1
+    GZIP = 2
+    SNAPPY = 3
+
+
 class DataRepository(YAMLObject):
     """ module specifies access to the data repository
         this can be: local fs, dfs, s3, rdbms database, etc
     """
     yaml_tag = '!DataRepository'
 
-    def __init__(self, host, port, db, user, password, description, **kwargs):
+    def __init__(self, host:str, port:Union[int, str], db:str,
+                 user:str, password:str, description:str,
+                 data_type:DataType=DataType.CSV,
+                 repo_type:RepositoryType=RepositoryType.FILE,
+                 compression:Compression=Compression.NONE,
+                 **kwargs):
         self.host = host
         self.port = port
         self.db = db
         self.user = user
         self.password = password
         self.description = description
+        self.data_type = data_type.name
+        self.repo_type = repo_type.name
+        self.compression = compression.name
         self.kwargs = kwargs
 
     def __eq__(self, other):
@@ -107,4 +138,11 @@ class DataRepository(YAMLObject):
                and self.db == other.db \
                and self.user == other.user \
                and self.password == other.password \
+               and self.data_type == other.data_type \
+               and self.repo_type == other.repo_type \
+               and self.compression == other.compression \
                and self.kwargs == other.kwargs
+
+    @property
+    def is_file_type(self) -> bool:
+        return self.repo_type == RepositoryType.FILE.name

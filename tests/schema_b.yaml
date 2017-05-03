@@ -1,14 +1,14 @@
 !Schema
 fields:
-- !Field {data_type: INTEGER, default: null, is_nullable: null, is_primary_key: null,
+- !Field {default: null, field_type: INTEGER, is_nullable: null, is_primary_key: null,
   is_unique: null, max_length: null, name: b, version: 1}
-- !Field {data_type: INTEGER, default: null, is_nullable: null, is_primary_key: null,
+- !Field {default: null, field_type: INTEGER, is_nullable: null, is_primary_key: null,
   is_unique: null, max_length: null, name: bb, version: 1}
-- !Field {data_type: INTEGER, default: null, is_nullable: null, is_primary_key: null,
+- !Field {default: null, field_type: INTEGER, is_nullable: null, is_primary_key: null,
   is_unique: null, max_length: null, name: bbb, version: 1}
-- !Field {data_type: BOOLEAN, default: null, is_nullable: null, is_primary_key: null,
+- !Field {default: null, field_type: BOOLEAN, is_nullable: null, is_primary_key: null,
   is_unique: null, max_length: null, name: column, version: 1}
-- !Field {data_type: BOOLEAN, default: null, is_nullable: null, is_primary_key: null,
+- !Field {default: null, field_type: BOOLEAN, is_nullable: null, is_primary_key: null,
   is_unique: null, max_length: null, name: another_column, version: 1}
-- !Field {data_type: BOOLEAN, default: null, is_nullable: null, is_primary_key: null,
+- !Field {default: null, field_type: BOOLEAN, is_nullable: null, is_primary_key: null,
   is_unique: null, max_length: null, name: yet_another_column, version: 1}

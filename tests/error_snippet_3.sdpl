@@ -1,10 +1,10 @@
 # ERROR: Referencing existing column, but with the higher version than allowed
 
-A = LOAD TABLE 'table_name' FROM 'tests/repo_a.yaml'
+A = LOAD TABLE 'table_name' FROM 'tests/repo_dfs.yaml'
         WITH SCHEMA 'tests/schema_a.yaml' VERSION 1 ;
-V = LOAD TABLE 'file_blob' FROM 'tests/repo_a.yaml'
+V = LOAD TABLE 'file_blob' FROM 'tests/repo_dfs.yaml'
         WITH SCHEMA 'tests/schema_v.yaml' VERSION 2;
 
 D = JOIN A BY (A.a), V BY (V.v) WITH PROJECTION (A.*, V.high_version);
 
-STORE D INTO TABLE 'table_name' FROM 'tests/repo_a.yaml';
+STORE D INTO TABLE 'table_name' FROM 'tests/repo_dfs.yaml';

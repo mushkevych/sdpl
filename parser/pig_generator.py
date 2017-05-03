@@ -7,11 +7,10 @@ import schema.io
 from grammar.sdplListener import sdplListener
 from grammar.sdplParser import sdplParser
 from parser.relation import Relation
-from parser.data_source import DataSource
-from parser.data_sink import DataSink
+from parser.data_store import DataStore
 from parser.projection import RelationProjection, ComputableField
 from parser.decorator import print_comments
-from parser.pig_schema import parse_datasink, parse_datasource, parse_schema
+from parser import pig_schema, postresql_schema
 
 
 class PigGenerator(sdplListener):
@@ -61,8 +60,9 @@ class PigGenerator(sdplListener):
             self.relations[relation_name] = relation
 
             # NOTICE: all LOAD specifics are handled by `DataSource` instance
-            data_source = DataSource(table_name, repo_path, relation)
-            self._out("{0} = {1};".format(relation_name, parse_datasource(data_source)))
+            data_source = DataStore(table_name, repo_path, relation)
+            parse_module = pig_schema if data_source.data_repository.is_file_type else postresql_schema
+            self._out("{0} = {1};".format(relation_name, parse_module.parse_datasource(data_source)))
         elif ctx.getChild(3).getText() == 'SCHEMA':
             # ID = LOAD SCHEMA ... VERSION ... ;
             # 0  1 2    3      4   5       6
@@ -195,7 +195,7 @@ class PigGenerator(sdplListener):
         relation_name = ctx.getChild(2).getText()
         referenced_schema = self.relations[relation_name].schema
         self._out('-- autocode: expanding relation {0} schema'.format(relation_name))
-        self._out(parse_schema(referenced_schema))
+        self._out(pig_schema.parse_schema(referenced_schema))
 
     @print_comments('--')
     def exitStoreDecl(self, ctx: sdplParser.StoreDeclContext):
@@ -205,8 +205,9 @@ class PigGenerator(sdplListener):
         table_name = ctx.getChild(4).getText()
         repo_path = ctx.getChild(6).getText()
         relation = self.relations[relation_name]
-        data_sink = DataSink(table_name, repo_path, relation)
-        self._out(parse_datasink(data_sink))
+        data_sink = DataStore(table_name, repo_path, relation)
+        parse_module = pig_schema if data_sink.data_repository.is_file_type else postresql_schema
+        self._out(parse_module.parse_datasink(data_sink))
 
     @print_comments('--')
     def exitStoreSchemaDecl(self, ctx: sdplParser.StoreSchemaDeclContext):
