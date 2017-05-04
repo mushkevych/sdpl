@@ -1,4 +1,4 @@
-# ERROR: RDBMS data source is referenced
+# ERROR: not supported RDBMS data source
 
 A = LOAD TABLE 'table_name' FROM 'tests/repo_db.yaml'
         WITH SCHEMA 'tests/schema_a.yaml' VERSION 1 ;

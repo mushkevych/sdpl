@@ -1,13 +1,19 @@
-# snippet: data source for local file system and data sink for DB
+# snippet: load data from all supported types of sources, store data in all supported types of sink
 
 A = LOAD TABLE 'table_name' FROM 'tests/repo_dfs.yaml'
         WITH SCHEMA 'tests/schema_a.yaml' VERSION 1 ;
-B = LOAD TABLE 'file_blob' FROM 'tests/repo_dfs.yaml'
+B = LOAD TABLE 'file_blob' FROM 'tests/repo_fs.yaml'
         WITH SCHEMA 'tests/schema_b.yaml' VERSION 1;
 
-D = PROJECTION (A.*, B.b) NOEMIT;
-E = PROJECTION (D.*, -B.*);
-Z = PROJECTION (D.a, D.aa, D.aaa);
+Z = JOIN A BY (A.a, A.aa), B BY (B.b, B.bb)
+        WITH PROJECTION (
+            A.*,
+            B.b,
+            B.bb,
+            B.bbb
+        );
 
-STORE E INTO TABLE 'table_name' FROM 'tests/repo_dfs.yaml';
+STORE Z INTO TABLE 'db_schema.db_table_name' FROM 'tests/repo_db.yaml';
+STORE Z INTO TABLE 'my_file.gz' FROM 'tests/repo_dfs.yaml';
+STORE Z INTO TABLE 'my_file' FROM 'tests/repo_fs.yaml';
 

@@ -2,7 +2,7 @@
 -- Do not edit the file manually
 -- # snippet: testing COMPUTE construct with no *plain* (i.e. uncomputed) fields
 -- # load A
-A = LOAD 'host.the_company.xyz:6789/mydb/table_name' USING PigStorage(',') AS (
+A = LOAD 's3://my_bucket.s3.amazonaws.com:443/path/within/bucket/table_name' USING PigStorage(',') AS (
     a:CHARARRAY,
     aa:CHARARRAY,
     aaa:CHARARRAY,
@@ -11,7 +11,7 @@ A = LOAD 'host.the_company.xyz:6789/mydb/table_name' USING PigStorage(',') AS (
     yet_another_column:BOOLEAN
 );
 -- # load B
-B = LOAD 'host.the_company.xyz:6789/mydb/file_blob' USING PigStorage(',') AS (
+B = LOAD 's3://my_bucket.s3.amazonaws.com:443/path/within/bucket/file_blob' USING PigStorage(',') AS (
     b:INTEGER,
     bb:INTEGER,
     bbb:INTEGER,
@@ -27,5 +27,5 @@ C = FOREACH JOIN_A_B GENERATE
     A.aa + B.bb AS add_field
 ;
 -- # user formatted comments ahead of STORE C
-STORE INTO 'host.the_company.xyz:6789/mydb/table_name' USING PigStorage(',') ;
+STORE C INTO 's3://my_bucket.s3.amazonaws.com:443/path/within/bucket/table_name' USING PigStorage(',') ;
 -- SDPL output: EOF

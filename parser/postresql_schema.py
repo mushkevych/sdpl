@@ -44,18 +44,18 @@ def parse_datasink(data_sink: DataStore):
     field_names = [f.name for f in data_sink.relation.schema.fields]
     values = ['?' for _ in range(len(field_names))]
 
-    out = '\n'
-    out += "REGISTER /var/lib/sdpl/postgresql-42.0.0.jar ;\n"
-    out += "REGISTER /var/lib/sdpl/piggybank-0.16.0.jar ;\n"
-    out += "STORE my_result INTO 'hdfs:///unused-ignore'"
-    out += " USING org.apache.pig.piggybank.storage.DBStorage"
-    out += "('org.postgresql.Driver',"
-    out += " 'jdbc:postgresql://{0}:{1}/{2}',".format(data_sink.data_repository.host,
-                                                      data_sink.data_repository.port,
-                                                      data_sink.data_repository.db)
-    out += " '{0}', '{1}',".format(data_sink.data_repository.user, data_sink.data_repository.password)
-    out += " 'INSERT INTO {0} ({1}) VALUES ({2})'".format(data_sink.table_name, ','.join(field_names), ','.join(values))
-    out += ');\n'
+    out = "REGISTER /var/lib/sdpl/postgresql-42.0.0.jar;\n"
+    out += "REGISTER /var/lib/sdpl/piggybank-0.16.0.jar;\n"
+    out += "STORE {0} INTO 'hdfs:///unused-ignore' ".format(data_sink.relation.name)
+    out += "USING org.apache.pig.piggybank.storage.DBStorage(\n"
+    out += "    'org.postgresql.Driver',\n"
+    out += "    'jdbc:postgresql://{0}:{1}/{2}',\n".format(data_sink.data_repository.host,
+                                                           data_sink.data_repository.port,
+                                                           data_sink.data_repository.db)
+    out += "    '{0}', '{1}',\n".format(data_sink.data_repository.user, data_sink.data_repository.password)
+    out += "    'INSERT INTO {0} ({1}) VALUES ({2})'\n".format(data_sink.table_name,
+                                                               ','.join(field_names), ','.join(values))
+    out += ');'
     return out
 
 

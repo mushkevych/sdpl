@@ -1,11 +1,13 @@
-# Generated from sdpl.g4 by ANTLR 4.5.1
+# Generated from /home/dmushkevych/opensource/sdpl.git/grammar/sdpl.g4 by ANTLR 4.7
 # encoding: utf-8
 from antlr4 import *
 from io import StringIO
+from typing.io import TextIO
+import sys
 
 def serializedATN():
     with StringIO() as buf:
-        buf.write("\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\65")
+        buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\65")
         buf.write("\u016f\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7")
         buf.write("\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13\4\f\t\f\4\r\t\r\4\16")
         buf.write("\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22\4\23\t\23")
@@ -44,11 +46,11 @@ def serializedATN():
         buf.write("\3\35\3\36\3\36\3\37\3\37\3\37\3\u0135\4\22( \2\4\6\b")
         buf.write("\n\f\16\20\22\24\26\30\32\34\36 \"$&(*,.\60\62\64\668")
         buf.write(":<\2\6\4\2##\61\61\6\2\22\23\35\"$$\61\61\3\2(-\3\2#\'")
-        buf.write("\u0179\2I\3\2\2\2\4O\3\2\2\2\6n\3\2\2\2\bp\3\2\2\2\n{")
-        buf.write("\3\2\2\2\f\u0085\3\2\2\2\16\u0088\3\2\2\2\20\u0091\3\2")
-        buf.write("\2\2\22\u009b\3\2\2\2\24\u00af\3\2\2\2\26\u00b1\3\2\2")
-        buf.write("\2\30\u00b5\3\2\2\2\32\u00ba\3\2\2\2\34\u00c3\3\2\2\2")
-        buf.write("\36\u00ca\3\2\2\2 \u00db\3\2\2\2\"\u00df\3\2\2\2$\u00ea")
+        buf.write("\2\u0179\2I\3\2\2\2\4O\3\2\2\2\6n\3\2\2\2\bp\3\2\2\2\n")
+        buf.write("{\3\2\2\2\f\u0085\3\2\2\2\16\u0088\3\2\2\2\20\u0091\3")
+        buf.write("\2\2\2\22\u009b\3\2\2\2\24\u00af\3\2\2\2\26\u00b1\3\2")
+        buf.write("\2\2\30\u00b5\3\2\2\2\32\u00ba\3\2\2\2\34\u00c3\3\2\2")
+        buf.write("\2\36\u00ca\3\2\2\2 \u00db\3\2\2\2\"\u00df\3\2\2\2$\u00ea")
         buf.write("\3\2\2\2&\u00ee\3\2\2\2(\u00fc\3\2\2\2*\u0111\3\2\2\2")
         buf.write(",\u0113\3\2\2\2.\u0122\3\2\2\2\60\u0131\3\2\2\2\62\u0145")
         buf.write("\3\2\2\2\64\u0157\3\2\2\2\66\u0159\3\2\2\28\u0161\3\2")
@@ -298,9 +300,9 @@ class sdplParser ( Parser ):
     WS=50
     SL_COMMENT=51
 
-    def __init__(self, input:TokenStream):
-        super().__init__(input)
-        self.checkVersion("4.5.1")
+    def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
+        super().__init__(input, output)
+        self.checkVersion("4.7")
         self._interp = ParserATNSimulator(self, self.atn, self.decisionsToDFA, self.sharedContextCache)
         self._predicates = None
 
@@ -418,6 +420,7 @@ class sdplParser ( Parser ):
             _la = self._input.LA(1)
             while True:
                 self.state = 71
+                self._errHandler.sync(self)
                 la_ = self._interp.adaptivePredict(self._input,0,self._ctx)
                 if la_ == 1:
                     self.state = 60
@@ -530,6 +533,7 @@ class sdplParser ( Parser ):
             self.state = 78
             self.quotedString()
             self.state = 81
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==sdplParser.T__1:
                 self.state = 79
@@ -587,6 +591,7 @@ class sdplParser ( Parser ):
         self.enterRule(localctx, 4, self.RULE_relationDecl)
         try:
             self.state = 108
+            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,3,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
@@ -694,6 +699,7 @@ class sdplParser ( Parser ):
             self.state = 115
             self.match(sdplParser.T__12)
             self.state = 117
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==sdplParser.T__13:
                 self.state = 116
@@ -800,6 +806,7 @@ class sdplParser ( Parser ):
         self.enterRule(localctx, 10, self.RULE_projectionField)
         try:
             self.state = 131
+            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,6,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
@@ -856,6 +863,7 @@ class sdplParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 134
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==sdplParser.AO_MINUS:
                 self.state = 133
@@ -871,8 +879,10 @@ class sdplParser ( Parser ):
             if not(_la==sdplParser.AO_MULTIPLY or _la==sdplParser.ID):
                 self._errHandler.recoverInline(self)
             else:
+                self._errHandler.reportMatch(self)
                 self.consume()
             self.state = 141
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==sdplParser.T__1:
                 self.state = 139
@@ -981,6 +991,7 @@ class sdplParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 153
+            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,9,self._ctx)
             if la_ == 1:
                 self.state = 148
@@ -1073,6 +1084,7 @@ class sdplParser ( Parser ):
         self.enterRule(localctx, 18, self.RULE_arithmOperation)
         try:
             self.state = 173
+            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,11,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
@@ -1653,6 +1665,7 @@ class sdplParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 250
+            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,14,self._ctx)
             if la_ == 1:
                 self.state = 245
@@ -1679,6 +1692,7 @@ class sdplParser ( Parser ):
                         self.triggerExitRuleEvent()
                     _prevctx = localctx
                     self.state = 258
+                    self._errHandler.sync(self)
                     la_ = self._interp.adaptivePredict(self._input,15,self._ctx)
                     if la_ == 1:
                         localctx = sdplParser.FilterExpressionContext(self, _parentctx, _parentState)
@@ -1760,6 +1774,7 @@ class sdplParser ( Parser ):
         self.enterRule(localctx, 40, self.RULE_filterOperation)
         try:
             self.state = 271
+            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [sdplParser.T__25, sdplParser.AO_MINUS, sdplParser.ID, sdplParser.DECIMAL, sdplParser.INTEGER]:
                 self.enterOuterAlt(localctx, 1)
@@ -1769,7 +1784,7 @@ class sdplParser ( Parser ):
                 self.compOperator()
                 self.state = 265
                 self.operand()
-
+                pass
             elif token in [sdplParser.T__11]:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 267
@@ -1778,7 +1793,7 @@ class sdplParser ( Parser ):
                 self.filterOperation()
                 self.state = 269
                 self.match(sdplParser.T__12)
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -2038,6 +2053,7 @@ class sdplParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.state = 323
+            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,23,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
@@ -2054,6 +2070,7 @@ class sdplParser ( Parser ):
             elif la_ == 3:
                 self.enterOuterAlt(localctx, 3)
                 self.state = 315
+                self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==sdplParser.AO_MINUS:
                     self.state = 314
@@ -2067,6 +2084,7 @@ class sdplParser ( Parser ):
             elif la_ == 4:
                 self.enterOuterAlt(localctx, 4)
                 self.state = 319
+                self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==sdplParser.AO_MINUS:
                     self.state = 318
@@ -2130,6 +2148,7 @@ class sdplParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.state = 341
+            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,25,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
@@ -2273,6 +2292,7 @@ class sdplParser ( Parser ):
                 if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << sdplParser.T__15) | (1 << sdplParser.T__16) | (1 << sdplParser.T__26) | (1 << sdplParser.T__27) | (1 << sdplParser.T__28) | (1 << sdplParser.T__29) | (1 << sdplParser.T__30) | (1 << sdplParser.T__31) | (1 << sdplParser.AO_DIVIDE) | (1 << sdplParser.ID))) != 0)):
                     self._errHandler.recoverInline(self)
                 else:
+                    self._errHandler.reportMatch(self)
                     self.consume()
                 self.state = 357
                 self._errHandler.sync(self)
@@ -2338,6 +2358,7 @@ class sdplParser ( Parser ):
             if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << sdplParser.CO_NE) | (1 << sdplParser.CO_EQ) | (1 << sdplParser.CO_LE) | (1 << sdplParser.CO_LT) | (1 << sdplParser.CO_GE) | (1 << sdplParser.CO_GT))) != 0)):
                 self._errHandler.recoverInline(self)
             else:
+                self._errHandler.reportMatch(self)
                 self.consume()
         except RecognitionException as re:
             localctx.exception = re
@@ -2394,6 +2415,7 @@ class sdplParser ( Parser ):
             if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << sdplParser.AO_MULTIPLY) | (1 << sdplParser.AO_DIVIDE) | (1 << sdplParser.AO_PLUS) | (1 << sdplParser.AO_MINUS) | (1 << sdplParser.AO_POWER))) != 0)):
                 self._errHandler.recoverInline(self)
             else:
+                self._errHandler.reportMatch(self)
                 self.consume()
         except RecognitionException as re:
             localctx.exception = re

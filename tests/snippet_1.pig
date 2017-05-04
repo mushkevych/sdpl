@@ -2,7 +2,7 @@
 -- Do not edit the file manually
 -- # snippet: load schema, load data, perform joins and schema projections, store result
 REGISTER 'file://path_to_library' AS first_library;
-A = LOAD 'host.the_company.xyz:6789/mydb/table_name' USING PigStorage(',') AS (
+A = LOAD 's3://my_bucket.s3.amazonaws.com:443/path/within/bucket/table_name' USING PigStorage(',') AS (
     a:CHARARRAY,
     aa:CHARARRAY,
     aaa:CHARARRAY,
@@ -10,7 +10,7 @@ A = LOAD 'host.the_company.xyz:6789/mydb/table_name' USING PigStorage(',') AS (
     another_column:BOOLEAN,
     yet_another_column:BOOLEAN
 );
-B = LOAD 'host.the_company.xyz:6789/mydb/file_blob' USING PigStorage(',') AS (
+B = LOAD 's3://my_bucket.s3.amazonaws.com:443/path/within/bucket/file_blob' USING PigStorage(',') AS (
     b:INTEGER,
     bb:INTEGER,
     bbb:INTEGER,
@@ -18,7 +18,7 @@ B = LOAD 'host.the_company.xyz:6789/mydb/file_blob' USING PigStorage(',') AS (
     another_column:BOOLEAN,
     yet_another_column:BOOLEAN
 );
-C = LOAD 'host.the_company.xyz:6789/mydb/file_name' USING PigStorage(',') AS (
+C = LOAD 's3://my_bucket.s3.amazonaws.com:443/path/within/bucket/file_name' USING PigStorage(',') AS (
     c:LONG,
     cc:LONG,
     ccc:LONG,
@@ -47,5 +47,5 @@ E = FOREACH JOIN_C_D GENERATE
     D.new_column AS new_column,
     D.column AS renamed_column
 ;
-STORE INTO 'host.the_company.xyz:6789/mydb/table_name' USING PigStorage(',') ;
+STORE D INTO 's3://my_bucket.s3.amazonaws.com:443/path/within/bucket/table_name' USING PigStorage(',') ;
 -- SDPL output: EOF

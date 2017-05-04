@@ -17,16 +17,16 @@ def parse_schema(schema: Schema, max_version=MIN_VERSION_NUMBER):
 
 
 def parse_datasink(data_sink: DataStore):
-    if data_sink.data_repository.data_type == DataType.CSV:
+    if data_sink.data_repository.data_type == DataType.CSV.name:
         store_function = "PigStorage(',')"
-    elif data_sink.data_repository.data_type == DataType.TSV:
+    elif data_sink.data_repository.data_type == DataType.TSV.name:
         store_function = "PigStorage()"
-    elif data_sink.data_repository.data_type == DataType.BIN:
+    elif data_sink.data_repository.data_type == DataType.BIN.name:
         store_function = "BinStorage()"
-    elif data_sink.data_repository.data_type == DataType.JSON:
+    elif data_sink.data_repository.data_type == DataType.JSON.name:
         store_function = "JsonStorage()"
-    elif data_sink.data_repository.data_type == DataType.ORC:
-        is_snappy = data_sink.data_repository.compression == Compression.SNAPPY
+    elif data_sink.data_repository.data_type == DataType.ORC.name:
+        is_snappy = data_sink.data_repository.compression == Compression.SNAPPY.name
         store_function = "OrcStorage('-c SNAPPY')" if is_snappy else "OrcStorage()"
     else:
         store_function = "PigStorage()"
@@ -47,16 +47,16 @@ def parse_datasink(data_sink: DataStore):
 
 
 def parse_datasource(data_source: DataStore):
-    if data_source.data_repository.data_type == DataType.CSV:
+    if data_source.data_repository.data_type == DataType.CSV.name:
         load_function = "PigStorage(',')"
-    elif data_source.data_repository.data_type == DataType.TSV:
+    elif data_source.data_repository.data_type == DataType.TSV.name:
         load_function = "PigStorage()"
-    elif data_source.data_repository.data_type == DataType.BIN:
+    elif data_source.data_repository.data_type == DataType.BIN.name:
         load_function = "BinStorage()"
-    elif data_source.data_repository.data_type == DataType.JSON:
+    elif data_source.data_repository.data_type == DataType.JSON.name:
         load_function = "JsonLoader()"
-    elif data_source.data_repository.data_type == DataType.ORC:
-        is_snappy = data_source.data_repository.compression == Compression.SNAPPY
+    elif data_source.data_repository.data_type == DataType.ORC.name:
+        is_snappy = data_source.data_repository.compression == Compression.SNAPPY.name
         load_function = "OrcStorage('-c SNAPPY')" if is_snappy else "OrcStorage()"
     else:
         load_function = "PigStorage()"

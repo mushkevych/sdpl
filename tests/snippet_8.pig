@@ -2,7 +2,7 @@
 -- Do not edit the file manually
 -- # snippet: testing comments
 -- # user formatted comments    ahead of relation A
-A = LOAD 's3://my_bucket.s3.amazonaws.com:443/path/within/bucket/table_name' USING PigStorage() AS (
+A = LOAD 's3://my_bucket.s3.amazonaws.com:443/path/within/bucket/table_name' USING PigStorage(',') AS (
     a:CHARARRAY,
     aa:CHARARRAY,
     aaa:CHARARRAY,
@@ -11,7 +11,7 @@ A = LOAD 's3://my_bucket.s3.amazonaws.com:443/path/within/bucket/table_name' USI
     yet_another_column:BOOLEAN
 );
 -- # user formatted comments ahead of relation B
-B = LOAD 's3://my_bucket.s3.amazonaws.com:443/path/within/bucket/file_blob' USING PigStorage() AS (
+B = LOAD 's3://my_bucket.s3.amazonaws.com:443/path/within/bucket/file_blob' USING PigStorage(',') AS (
     b:INTEGER,
     bb:INTEGER,
     bbb:INTEGER,
@@ -31,5 +31,5 @@ C = FOREACH JOIN_A_B GENERATE
     B.bbb AS bbb
 ;
 -- # user formatted comments ahead of STORE C
-STORE C INTO 's3://my_bucket.s3.amazonaws.com:443/path/within/bucket/table_name' USING PigStorage() ;
+STORE C INTO 's3://my_bucket.s3.amazonaws.com:443/path/within/bucket/table_name' USING PigStorage(',') ;
 -- SDPL output: EOF
