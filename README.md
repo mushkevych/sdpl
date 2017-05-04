@@ -35,6 +35,6 @@ Mirror: https://github.com/mushkevych/sdpl
 
 
 # run example
-```
+```bash
 $> python3 sdpl.py pig -i tests/snippet_1.sdpl
 ```
