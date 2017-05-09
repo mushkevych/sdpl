@@ -10,10 +10,10 @@ from parser.relation import Relation
 from parser.data_store import DataStore
 from parser.projection import RelationProjection, ComputableField
 from parser.decorator import print_comments
-from parser import pig_schema
+from parser import spark_schema
 
 
-class PigGenerator(sdplListener):
+class SparkGenerator(sdplListener):
     def __init__(self, token_stream: CommonTokenStream, output_stream: TextIOWrapper):
         super().__init__()
         self.token_stream = token_stream
@@ -61,7 +61,7 @@ class PigGenerator(sdplListener):
 
             # NOTICE: all LOAD specifics are handled by `DataStore` instance
             data_source = DataStore(table_name, repo_path, relation)
-            self._out("{0} = {1};".format(relation_name, pig_schema.parse_datasource(data_source)))
+            self._out("{0} = {1};".format(relation_name, spark_schema.parse_datasource(data_source)))
         elif ctx.getChild(3).getText() == 'SCHEMA':
             # ID = LOAD SCHEMA ... VERSION ... ;
             # 0  1 2    3      4   5       6
@@ -194,7 +194,7 @@ class PigGenerator(sdplListener):
         relation_name = ctx.getChild(2).getText()
         referenced_schema = self.relations[relation_name].schema
         self._out('-- autocode: expanding relation {0} schema'.format(relation_name))
-        self._out(pig_schema.parse_schema(referenced_schema))
+        self._out(spark_schema.parse_schema(referenced_schema))
 
     @print_comments('--')
     def exitStoreDecl(self, ctx: sdplParser.StoreDeclContext):
@@ -205,7 +205,7 @@ class PigGenerator(sdplListener):
         repo_path = ctx.getChild(6).getText()
         relation = self.relations[relation_name]
         data_sink = DataStore(table_name, repo_path, relation)
-        self._out(pig_schema.parse_datasink(data_sink))
+        self._out(spark_schema.parse_datasink(data_sink))
 
     @print_comments('--')
     def exitStoreSchemaDecl(self, ctx: sdplParser.StoreSchemaDeclContext):

@@ -16,7 +16,26 @@ def parse_schema(schema: Schema, max_version=MIN_VERSION_NUMBER):
     return out
 
 
-def parse_datasink(data_sink: DataStore):
+def _jdbc_datasink(data_sink: DataStore):
+    field_names = [f.name for f in data_sink.relation.schema.fields]
+    values = ['?' for _ in range(len(field_names))]
+
+    out = "REGISTER /var/lib/sdpl/postgresql-42.0.0.jar;\n"
+    out += "REGISTER /var/lib/sdpl/piggybank-0.16.0.jar;\n"
+    out += "STORE {0} INTO 'hdfs:///unused-ignore' ".format(data_sink.relation.name)
+    out += "USING org.apache.pig.piggybank.storage.DBStorage(\n"
+    out += "    'org.postgresql.Driver',\n"
+    out += "    'jdbc:postgresql://{0}:{1}/{2}',\n".format(data_sink.data_repository.host,
+                                                           data_sink.data_repository.port,
+                                                           data_sink.data_repository.db)
+    out += "    '{0}', '{1}',\n".format(data_sink.data_repository.user, data_sink.data_repository.password)
+    out += "    'INSERT INTO {0} ({1}) VALUES ({2})'\n".format(data_sink.table_name,
+                                                               ','.join(field_names), ','.join(values))
+    out += ');'
+    return out
+
+
+def _file_datasink(data_sink: DataStore):
     if data_sink.data_repository.data_type == DataType.CSV.name:
         store_function = "PigStorage(',')"
     elif data_sink.data_repository.data_type == DataType.TSV.name:
@@ -42,11 +61,22 @@ def parse_datasink(data_sink: DataStore):
                                         data_sink.data_repository.db.strip('/'),
                                         data_sink.table_name)
 
-    load_string = "STORE {0} INTO '{1}' USING {2} ;".format(data_sink.relation.name, fqfp, store_function)
-    return load_string
+    store_string = "STORE {0} INTO '{1}' USING {2} ;".format(data_sink.relation.name, fqfp, store_function)
+    return store_string
 
 
-def parse_datasource(data_source: DataStore):
+def parse_datasink(data_sink: DataStore):
+    if data_sink.data_repository.is_file_type:
+        _file_datasink(data_sink)
+    else:
+        _jdbc_datasink(data_sink)
+
+
+def _jdbc_datasource(data_source: DataStore):
+    raise NotImplementedError('pig_schema._jdbc_datasource is not supported')
+
+
+def _file_datasource(data_source: DataStore):
     if data_source.data_repository.data_type == DataType.CSV.name:
         load_function = "PigStorage(',')"
     elif data_source.data_repository.data_type == DataType.TSV.name:
@@ -74,3 +104,10 @@ def parse_datasource(data_source: DataStore):
 
     load_string = "LOAD '{0}' USING {1} AS ({2})".format(fqfp, load_function, parse_schema(data_source.relation.schema))
     return load_string
+
+
+def parse_datasource(data_source: DataStore):
+    if data_source.data_repository.is_file_type:
+        _file_datasource(data_source)
+    else:
+        _jdbc_datasource(data_source)

@@ -10,10 +10,10 @@ from parser.relation import Relation
 from parser.data_store import DataStore
 from parser.projection import RelationProjection, ComputableField
 from parser.decorator import print_comments
-from parser import pig_schema
+from parser import pig_schema, postresql_schema
 
 
-class PigGenerator(sdplListener):
+class CommonGenerator(sdplListener):
     def __init__(self, token_stream: CommonTokenStream, output_stream: TextIOWrapper):
         super().__init__()
         self.token_stream = token_stream
@@ -34,19 +34,6 @@ class PigGenerator(sdplListener):
         self._out(user_text)
 
     @print_comments('--')
-    def exitLibDecl(self, ctx: sdplParser.LibDeclContext):
-        # REGISTER quotedString (AS ID )? ;
-        # 0        1             2  3
-        path_child = ctx.getChild(1)      # library path: QuotedStringContext
-
-        if ctx.getChildCount() > 3:
-            # read out the AS ID part
-            library_alias = ctx.getChild(3)
-            self._out('REGISTER {0} AS {1};'.format(path_child.getText(), library_alias.getText()))
-        else:
-            self._out('REGISTER {0};'.format(path_child.getText()))
-
-    @print_comments('--')
     def exitRelationDecl(self, ctx: sdplParser.RelationDeclContext):
         relation_name = ctx.getChild(0).getText()
         if ctx.getChild(3).getText() == 'TABLE':
@@ -61,7 +48,8 @@ class PigGenerator(sdplListener):
 
             # NOTICE: all LOAD specifics are handled by `DataStore` instance
             data_source = DataStore(table_name, repo_path, relation)
-            self._out("{0} = {1};".format(relation_name, pig_schema.parse_datasource(data_source)))
+            parse_module = pig_schema if data_source.data_repository.is_file_type else postresql_schema
+            self._out("{0} = {1};".format(relation_name, parse_module.parse_datasource(data_source)))
         elif ctx.getChild(3).getText() == 'SCHEMA':
             # ID = LOAD SCHEMA ... VERSION ... ;
             # 0  1 2    3      4   5       6
@@ -205,7 +193,8 @@ class PigGenerator(sdplListener):
         repo_path = ctx.getChild(6).getText()
         relation = self.relations[relation_name]
         data_sink = DataStore(table_name, repo_path, relation)
-        self._out(pig_schema.parse_datasink(data_sink))
+        parse_module = pig_schema if data_sink.data_repository.is_file_type else postresql_schema
+        self._out(parse_module.parse_datasink(data_sink))
 
     @print_comments('--')
     def exitStoreSchemaDecl(self, ctx: sdplParser.StoreSchemaDeclContext):
