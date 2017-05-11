@@ -1,5 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
+from collections import OrderedDict
 from io import TextIOWrapper
 from antlr4 import *
 
@@ -10,14 +11,15 @@ from parser.relation import Relation
 from parser.data_store import DataStore
 from parser.projection import RelationProjection, ComputableField
 from parser.decorator import print_comments
-from parser import pig_schema, postresql_schema
+from parser.abstract_lexicon import AbstractLexicon
 
 
-class CommonGenerator(sdplListener):
-    def __init__(self, token_stream: CommonTokenStream, output_stream: TextIOWrapper):
+class SdplGenerator(sdplListener):
+    def __init__(self, token_stream: CommonTokenStream, output_stream: TextIOWrapper, lexicon: AbstractLexicon):
         super().__init__()
         self.token_stream = token_stream
         self.output_stream = output_stream
+        self.lexicon = lexicon
 
         # format: {name: Relation}
         self.relations = dict()
@@ -34,6 +36,19 @@ class CommonGenerator(sdplListener):
         self._out(user_text)
 
     @print_comments('--')
+    def exitLibDecl(self, ctx: sdplParser.LibDeclContext):
+        # REGISTER quotedString (AS ID )? ;
+        # 0        1             2  3
+        path_child = ctx.getChild(1)      # library path: QuotedStringContext
+
+        if ctx.getChildCount() > 3:
+            # read out the AS ID part
+            library_alias = ctx.getChild(3)
+            self.lexicon.emit_udf_registration(path_child.getText(), library_alias.getText())
+        else:
+            self.lexicon.emit_udf_registration(path_child.getText(), None)
+
+    @print_comments('--')
     def exitRelationDecl(self, ctx: sdplParser.RelationDeclContext):
         relation_name = ctx.getChild(0).getText()
         if ctx.getChild(3).getText() == 'TABLE':
@@ -48,8 +63,7 @@ class CommonGenerator(sdplListener):
 
             # NOTICE: all LOAD specifics are handled by `DataStore` instance
             data_source = DataStore(table_name, repo_path, relation)
-            parse_module = pig_schema if data_source.data_repository.is_file_type else postresql_schema
-            self._out("{0} = {1};".format(relation_name, parse_module.parse_datasource(data_source)))
+            self.lexicon.emit_releation_decl(relation_name, data_source)
         elif ctx.getChild(3).getText() == 'SCHEMA':
             # ID = LOAD SCHEMA ... VERSION ... ;
             # 0  1 2    3      4   5       6
@@ -72,7 +86,7 @@ class CommonGenerator(sdplListener):
         # schemaField :  (-)? ID . ( ID | *) (AS ID)? ;
         relation_name = ctx.getChild(0).getText()
         ctx_proj_fields = ctx.getTypedRuleContexts(sdplParser.ProjectionFieldsContext)
-        ctx_proj_fields = ctx_proj_fields[0]    # only one block of projection fields is expected
+        ctx_proj_fields = ctx_proj_fields[0]  # only one block of projection fields is expected
         projection = self.parse_schema_projection(relation_name, ctx_proj_fields)
 
         is_silent = ctx.children[-2].getText() == 'NOEMIT'
@@ -88,9 +102,11 @@ class CommonGenerator(sdplListener):
         if len(right_relations) > 1:
             raise UserWarning('More than one schema is referenced in PROJECTION: *{0}*'.format(right_relations))
 
-        self.emit_schema_projection(projection, relation_name, right_relations.pop())
+        output_fields = projection.fields + projection.computable_fields
+        self.lexicon.emit_schema_projection(relation_name, right_relations.pop(), output_fields)
 
-    def parse_schema_projection(self, relation_name:str, ctx_proj_fields:sdplParser.ProjectionFieldsContext) -> RelationProjection:
+    def parse_schema_projection(self, relation_name: str,
+                                ctx_proj_fields: sdplParser.ProjectionFieldsContext) -> RelationProjection:
         """ method is the heart of the Schema Projection functionality:
             it reads the input, produces projected `Relation`
             and enlists it into the `self.relations` - list of known relations
@@ -98,7 +114,7 @@ class CommonGenerator(sdplListener):
         projection = RelationProjection(self.relations)
         list_ctx_fields = ctx_proj_fields.getTypedRuleContexts(sdplParser.ProjectionFieldContext)
 
-        def _fetch_by_type(ctx_type:type):
+        def _fetch_by_type(ctx_type: type):
             _fields = list()
             for ctx_proj_field in list_ctx_fields:
                 ctx_field = ctx_proj_field.getTypedRuleContexts(ctx_type)
@@ -115,7 +131,7 @@ class CommonGenerator(sdplListener):
         self.relations[relation_name] = projection.finalize_relation(relation_name)
         return projection
 
-    def _parse_schema_fields(self, projection:RelationProjection, schema_fields:list):
+    def _parse_schema_fields(self, projection: RelationProjection, schema_fields: list):
         for ctx_schema_field in schema_fields:
             assert isinstance(ctx_schema_field, sdplParser.SchemaFieldContext)
             if ctx_schema_field.getChildCount() <= 4:
@@ -145,14 +161,14 @@ class CommonGenerator(sdplListener):
                 else:
                     projection.add(schema_name, field_name, as_field_name)
 
-    def _parse_compute_expressions(self, projection:RelationProjection, compute_fields:list):
+    def _parse_compute_expressions(self, projection: RelationProjection, compute_fields: list):
         # computeExpression AS typedField ;
         # 0                 1  2
         # typedField      : ID:ID ;
         for ctx_compute_decl in compute_fields:
             assert isinstance(ctx_compute_decl, sdplParser.ComputeDeclContext)
             ctx_compute_expression = ctx_compute_decl.getTypedRuleContexts(sdplParser.ComputeExpressionContext)
-            ctx_compute_expression = ctx_compute_expression[0]    # only one block of compute expressions is expected
+            ctx_compute_expression = ctx_compute_expression[0]  # only one block of compute expressions is expected
 
             typed_field = ctx_compute_decl.children[-1]
             field_name = typed_field.children[0].getText()
@@ -166,23 +182,14 @@ class CommonGenerator(sdplListener):
             comp_field = ComputableField(field_name, field_type, expression)
             projection.new_field(comp_field)
 
-    def emit_schema_projection(self, projection:RelationProjection, left_relation_name, right_relation_name):
-        """ method iterates over the projection and emits FOREACH ... GENERATE code
-            NOTICE: computable fields are placed at the tail of the GENERATE block """
-        output_fields = projection.fields + projection.computable_fields
-        self._out('{0} = FOREACH {1} GENERATE'.format(left_relation_name, right_relation_name))
-        output = ',\n    '.join([str(f) for f in output_fields])
-        self._out('    ' + output)
-        self._out(';')
-
     @print_comments('--')
-    def exitExpandSchema(self, ctx:sdplParser.ExpandSchemaContext):
+    def exitExpandSchema(self, ctx: sdplParser.ExpandSchemaContext):
         # EXPAND SCHEMA ID ;
         # 0      1      2
         relation_name = ctx.getChild(2).getText()
         referenced_schema = self.relations[relation_name].schema
         self._out('-- autocode: expanding relation {0} schema'.format(relation_name))
-        self._out(pig_schema.parse_schema(referenced_schema))
+        self._out(self.lexicon.parse_schema(referenced_schema))
 
     @print_comments('--')
     def exitStoreDecl(self, ctx: sdplParser.StoreDeclContext):
@@ -193,8 +200,7 @@ class CommonGenerator(sdplListener):
         repo_path = ctx.getChild(6).getText()
         relation = self.relations[relation_name]
         data_sink = DataStore(table_name, repo_path, relation)
-        parse_module = pig_schema if data_sink.data_repository.is_file_type else postresql_schema
-        self._out(parse_module.parse_datasink(data_sink))
+        self._out(self.lexicon.parse_datasink(data_sink))
 
     @print_comments('--')
     def exitStoreSchemaDecl(self, ctx: sdplParser.StoreSchemaDeclContext):
@@ -213,36 +219,26 @@ class CommonGenerator(sdplListener):
         # relationColumns :  '(' relationColumn (',' relationColumn)* ')' ;
         # relationColumn  :  ID ('.' ID) ;
 
-        # step 1: Generate JOIN as JOIN_SA_SB_..._SZ
+        # step 1: Generate JOIN name as JOIN_SA_SB_..._SZ
         relation_name = ctx.getChild(0).getText()
         ctx_join_elements = ctx.getTypedRuleContexts(sdplParser.JoinElementContext)
 
-        join_name = 'JOIN'
-        join_body = ''
+        join_elements = OrderedDict()
         for ctx_join_element in ctx_join_elements:
-            assert isinstance(ctx_join_element, sdplParser.JoinElementContext)
             element_id = ctx_join_element.getChild(0).getText()
-            join_name += '_' + element_id.upper()
-
-            if not join_body:
-                # this is the first cycle of the loop
-                join_body = 'JOIN {0} BY '.format(element_id)
-            else:
-                join_body += ', {0} BY '.format(element_id)
-
             ctx_columns = ctx_join_element.getTypedRuleContexts(sdplParser.RelationColumnsContext)
             ctx_columns = ctx_columns[0]  # only one block of relation columns is expected
-            join_body += ctx_columns.getText()
 
-        self._out('{0} = {1} ;'.format(join_name, join_body))
+            join_columns = ctx_columns.getText()
+            join_elements[element_id] = join_columns.strip('(').strip(')').split(',')
 
         # step 2: perform schema projection
         ctx_proj_fields = ctx.getTypedRuleContexts(sdplParser.ProjectionFieldsContext)
-        ctx_proj_fields = ctx_proj_fields[0]    # only one block of projection fields is expected
+        ctx_proj_fields = ctx_proj_fields[0]  # only one block of projection fields is expected
         projection = self.parse_schema_projection(relation_name, ctx_proj_fields)
 
-        # step 3: expand schema with FOREACH ... GENERATE
-        self.emit_schema_projection(projection, relation_name, join_name)
+        # step 3: emit projection code
+        self.lexicon.emit_join(relation_name, join_elements, projection)
 
     @print_comments('--')
     def exitFilterDecl(self, ctx: sdplParser.FilterDeclContext):
@@ -272,7 +268,7 @@ class CommonGenerator(sdplListener):
         self._out_bypass_parser(ctx)
 
     @print_comments('--')
-    def exitQuotedCode(self, ctx:sdplParser.QuotedCodeContext):
+    def exitQuotedCode(self, ctx: sdplParser.QuotedCodeContext):
         # QUOTE_DELIM .*? QUOTE_DELIM ;
         ctx.start = ctx.children[1].symbol  # skipping starting QUOTE_DELIM
         ctx.stop = ctx.children[-2].symbol  # skipping closing QUOTE_DELIM

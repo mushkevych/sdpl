@@ -5,7 +5,7 @@ import traceback
 import unittest
 
 from parser.driver import run_generator
-from parser.pig_generator import PigGenerator
+from parser.pig_lexicon import PigLexicon
 
 TESTS_ROOT = os.path.abspath(os.path.dirname(__file__))
 
@@ -39,12 +39,12 @@ class SdplPigUnitTest(unittest.TestCase):
                 if not os.path.isfile(base_file_path):
                     # .pig file does not exist yet - create one
                     with open(base_file_path, mode='w') as output_stream:
-                        run_generator(full_path, output_stream, PigGenerator)
+                        run_generator(full_path, output_stream, PigLexicon)
 
                 # locate compiler output - .out file
                 output_file_path = full_path.replace('.sdpl', '.out')
                 with open(output_file_path, mode='w') as output_stream:
-                    run_generator(full_path, output_stream, PigGenerator)
+                    run_generator(full_path, output_stream, PigLexicon)
 
                 # compare two files - .pig vs .out
                 with open(base_file_path, 'r') as base_file, open(output_file_path, 'r') as output_file:
@@ -62,7 +62,7 @@ class SdplPigUnitTest(unittest.TestCase):
         for full_path in self.sdpl_error_cases:
             null_stream = open(os.devnull, 'w')  # redirect error cases output to /dev/null
             try:
-                run_generator(full_path, null_stream, PigGenerator)
+                run_generator(full_path, null_stream, PigLexicon)
                 self.assertTrue(False, 'SDPL parser exception was not expected for {0}'.format(full_path))
             except:
                 self.assertTrue(True, 'expected SDPL parser exception was received for {0}'.format(full_path))

@@ -10,7 +10,7 @@ from os import path
 from parser.projection import Schema
 from schema.io import load
 from parser.driver import run_generator
-from parser.pig_generator import PigGenerator
+from parser.pig_lexicon import PigLexicon
 from parser.postresql_schema import compose_ddl
 
 PROJECT_ROOT = path.abspath(path.dirname(__file__))
@@ -56,7 +56,7 @@ def compile_pig(parser_args):
     else:
         output_stream = open(parser_args.outfile, 'w')
 
-    run_generator(parser_args.infile, output_stream, PigGenerator)
+    run_generator(parser_args.infile, output_stream, PigLexicon)
 
 
 def compile_postgresql(parser_args):

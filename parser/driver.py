@@ -5,12 +5,12 @@ from antlr4 import *
 
 from grammar.sdplLexer import sdplLexer
 from grammar.sdplParser import sdplParser
-from grammar.sdplListener import sdplListener
-from parser.pig_generator import PigGenerator
+from parser.sdpl_generator import SdplGenerator
+from parser.pig_lexicon import AbstractLexicon
 
 
-def run_generator(input_file, output_stream, generator_class=PigGenerator):
-    assert issubclass(generator_class, sdplListener)
+def run_generator(input_file, output_stream, lexicon_class):
+    assert issubclass(lexicon_class, AbstractLexicon)
 
     input_stream = FileStream(input_file, encoding='utf-8')
     lexer = sdplLexer(input_stream)
@@ -19,7 +19,8 @@ def run_generator(input_file, output_stream, generator_class=PigGenerator):
     tree = parser.start_rule()
 
     walker = ParseTreeWalker()
-    collector = PigGenerator(token_stream, output_stream)
+    lexicon = lexicon_class(output_stream)
+    collector = SdplGenerator(token_stream, output_stream, lexicon)
 
     _print_header(output_stream, input_file)
     walker.walk(collector, tree)
