@@ -7,4 +7,5 @@ user: null
 password: null
 data_type: TSV
 repo_type: FILE
+compression: NONE
 kwargs: {}

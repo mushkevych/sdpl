@@ -8,7 +8,7 @@ from parser.data_store import DataStore
 from parser.projection import RelationProjection, FieldProjection, ComputableField
 from parser.abstract_lexicon import AbstractLexicon
 
-PGSQL_MAPPING = {
+SPARK_MAPPING = {
     FieldType.INTEGER.name: 'IntegerType',
     FieldType.LONG.name: 'LongType',
     FieldType.FLOAT.name: 'FloatType',
@@ -28,8 +28,8 @@ class SparkLexicon(AbstractLexicon):
                                                           data_sink.data_repository.port,
                                                           data_sink.data_repository.db)
 
-        jdbc_properties = "{ 'user': '{0}', 'password': '{1}' }".format(data_sink.data_repository.user,
-                                                                        data_sink.data_repository.password)
+        jdbc_properties = "{{ 'user': '{0}', 'password': '{1}' }}".format(data_sink.data_repository.user,
+                                                                          data_sink.data_repository.password)
         store_string = "sqlContext.write.jdbc({0}, {1}, properties={2})". \
             format(jdbc_uri, data_sink.table_name, jdbc_properties)
 
@@ -38,14 +38,14 @@ class SparkLexicon(AbstractLexicon):
     def _file_datasink(self, data_sink: DataStore):
         if not data_sink.data_repository.host:
             # local file system
-            fqfp = '/{0}/{1}'.format(data_sink.data_repository.db.strip('/'),
-                                     data_sink.table_name)
+            fqfp = "'/{0}/{1}'".format(data_sink.data_repository.db.strip('/'),
+                                       data_sink.table_name)
         else:
             # distributed file system
-            fqfp = '{0}:{1}/{2}/{3}'.format(data_sink.data_repository.host.strip('/'),
-                                            data_sink.data_repository.port,
-                                            data_sink.data_repository.db.strip('/'),
-                                            data_sink.table_name)
+            fqfp = "'{0}:{1}/{2}/{3}'".format(data_sink.data_repository.host.strip('/'),
+                                              data_sink.data_repository.port,
+                                              data_sink.data_repository.db.strip('/'),
+                                              data_sink.table_name)
 
         if data_sink.data_repository.data_type == DataType.CSV.name:
             store_string = "sqlContext.write.csv({0}, compression='{1}', sep=',')". \
@@ -82,14 +82,14 @@ class SparkLexicon(AbstractLexicon):
     def _file_datasource(self, data_source: DataStore):
         if not data_source.data_repository.host:
             # local file system
-            fqfp = '/{0}/{1}'.format(data_source.data_repository.db.strip('/'),
-                                     data_source.table_name)
+            fqfp = "'/{0}/{1}'".format(data_source.data_repository.db.strip('/'),
+                                       data_source.table_name)
         else:
             # distributed file system
-            fqfp = '{0}:{1}/{2}/{3}'.format(data_source.data_repository.host.strip('/'),
-                                            data_source.data_repository.port,
-                                            data_source.data_repository.db.strip('/'),
-                                            data_source.table_name)
+            fqfp = "'{0}:{1}/{2}/{3}'".format(data_source.data_repository.host.strip('/'),
+                                              data_source.data_repository.port,
+                                              data_source.data_repository.db.strip('/'),
+                                              data_source.table_name)
 
         if data_source.data_repository.data_type == DataType.CSV.name:
             load_string = "sqlContext.read.csv({0}, schema={1}, sep=',')". \
@@ -100,7 +100,7 @@ class SparkLexicon(AbstractLexicon):
         elif data_source.data_repository.data_type == DataType.BIN.name:
             load_string = "TBD"
         elif data_source.data_repository.data_type == DataType.JSON.name:
-            load_string = "sqlContext.read.json({0}, schema={1})".\
+            load_string = "sqlContext.read.json({0}, schema={1})". \
                 format(fqfp, self.parse_schema(data_source.relation.schema))
         elif data_source.data_repository.data_type == DataType.ORC.name:
             load_string = "sqlContext.read.orc({0})".format(fqfp)
@@ -108,6 +108,10 @@ class SparkLexicon(AbstractLexicon):
             load_string = "sqlContext.read.text({0})".format(fqfp)
 
         return load_string
+
+    @classmethod
+    def comment_delimiter(cls):
+        return '#'
 
     def parse_datasource(self, data_source: DataStore):
         if data_source.data_repository.is_file_type:
@@ -122,7 +126,8 @@ class SparkLexicon(AbstractLexicon):
             return self._jdbc_datasink(data_sink)
 
     def parse_field(self, field: Field):
-        out = 'StructField("{0}", {1}, {2})'.format(field.name, field.field_type, field.is_nullable)
+        field_type = SPARK_MAPPING[field.field_type]
+        out = "StructField('{0}', {1}, {2})".format(field.name, field_type, bool(field.is_nullable))
         return out
 
     def parse_field_projection(self, field: Union[FieldProjection, ComputableField]):
@@ -139,12 +144,12 @@ class SparkLexicon(AbstractLexicon):
         out = 'StructType([ {0} ])\n'.format(out)
         return out
 
-    def emit_udf_registration(self, udf_fqfp: str, udf_alias:str):
+    def emit_udf_registration(self, udf_fqfp: str, udf_alias: str):
         if not udf_alias:
             raise UserWarning('Full REGISTER ... AS ... clause is required for Spark generation while registering {0}'.
                               format(udf_fqfp))
 
-        self._out('sqlContext.udf.register({1}, {0})'.format(udf_alias, udf_fqfp))
+        self._out("sqlContext.udf.register({1}, '{0}')".format(udf_alias, udf_fqfp))
 
     def emit_releation_decl(self, relation_name: str, data_source: DataStore):
         self._out("{0} = {1}".format(relation_name, self.parse_datasource(data_source)))
@@ -164,28 +169,29 @@ class SparkLexicon(AbstractLexicon):
         :param projection: 
         :return: None 
         """
-        # df = df1.join(df2, (df1.x1 == df2.x1) & (df1.x2 == df2.x2))
 
-        # firstdf.join(
-        #     seconddf,
-        #     [col(f) == col(s) for (f, s) in zip(columnsFirstDf, columnsSecondDf)],
-        #     "inner"
-        # )
+        def join_criteria(a_join_columns, b_join_columns):
+            logic_tokens = ['({0} == {1})'.format(a_column, b_column)
+                            for a_column, b_column in zip(a_join_columns, b_join_columns)]
+            return ' & '.join(logic_tokens)
 
-        # step 1: Generate JOIN name as JOIN_SA_SB_..._SZ
+        # step 1: Generate JOIN body
+        a_join_columns = None
         join_body = ''
         for element_name, join_columns in join_elements.items():
             if not join_body:
-                # this is the first cycle of the loop
-                join_body = 'JOIN {0} BY '.format(element_name)
-            else:
-                join_body += ', {0} BY '.format(element_name)
+                join_body = '{0}'.format(element_name)
+                a_join_columns = join_columns
+                continue
 
-            join_body += '(' + ', '.join(join_columns) + ')'
+            criteria = join_criteria(a_join_columns, join_columns)
+            a_join_columns = join_columns
+            join_body += ".join({0}, {1}, 'left_outer')".format(element_name, criteria)
 
+        # step 2: Generate JOIN name as JOIN_SA_SB_..._SZ and emit join statement
         join_name = 'JOIN_' + '_'.join([element_name.upper() for element_name in join_elements])
-        self._out('{0} = {1} ;'.format(join_name, join_body))
+        self._out('{0} = {1}'.format(join_name, join_body))
 
-        # step 2: expand schema with FOREACH ... GENERATE
+        # step 3: expand schema with FOREACH ... GENERATE
         output_fields = projection.fields + projection.computable_fields
         self.emit_schema_projection(relation_name, join_name, output_fields)

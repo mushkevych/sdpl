@@ -94,6 +94,10 @@ class PigLexicon(AbstractLexicon):
             format(fqfp, load_function, self.parse_schema(data_source.relation.schema))
         return load_string
 
+    @classmethod
+    def comment_delimiter(cls):
+        return '--'
+
     def parse_datasource(self, data_source: DataStore):
         if data_source.data_repository.is_file_type:
             return self._file_datasource(data_source)

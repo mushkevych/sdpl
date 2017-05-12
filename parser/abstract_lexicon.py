@@ -15,6 +15,10 @@ class AbstractLexicon(object):
         self.output_stream.write(text)
         self.output_stream.write('\n')
 
+    @classmethod
+    def comment_delimiter(cls):
+        pass
+
     def parse_datasource(self, data_source: DataStore):
         pass
 

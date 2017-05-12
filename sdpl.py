@@ -11,6 +11,7 @@ from parser.projection import Schema
 from schema.io import load
 from parser.driver import run_generator
 from parser.pig_lexicon import PigLexicon
+from parser.spark_lexicon import SparkLexicon
 from parser.postresql_schema import compose_ddl
 
 PROJECT_ROOT = path.abspath(path.dirname(__file__))
@@ -24,6 +25,11 @@ def init_parser():
     pig_parser.add_argument('-i', '--infile', action='store', help='SDPL input file')
     pig_parser.add_argument('-o', '--outfile', action='store', help='Apache Pig output file')
     pig_parser.set_defaults(func=compile_pig)
+
+    spark_parser = subparsers.add_parser('spark', help='compile given SDPL file into Apache Spark')
+    spark_parser.add_argument('-i', '--infile', action='store', help='SDPL input file')
+    spark_parser.add_argument('-o', '--outfile', action='store', help='Apache Spark output file')
+    spark_parser.set_defaults(func=compile_spark)
 
     postgresql_parser = subparsers.add_parser('postgresql',
                                               help='compile given SCHEMA file into PostgreSql *CREATE TABLE* SQL')
@@ -57,6 +63,21 @@ def compile_pig(parser_args):
         output_stream = open(parser_args.outfile, 'w')
 
     run_generator(parser_args.infile, output_stream, PigLexicon)
+
+
+def compile_spark(parser_args):
+    if not parser_args.infile:
+        print('ERROR: Input file is missing\n')
+        parser_args.parser.parse_args(['spark', '-h'])
+        exit(1)
+
+    if not parser_args.outfile:
+        print('No output file specified. Using stdout.')
+        output_stream = sys.stdout
+    else:
+        output_stream = open(parser_args.outfile, 'w')
+
+    run_generator(parser_args.infile, output_stream, SparkLexicon)
 
 
 def compile_postgresql(parser_args):

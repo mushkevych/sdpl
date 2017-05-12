@@ -15,11 +15,14 @@ from parser.abstract_lexicon import AbstractLexicon
 
 
 class SdplGenerator(sdplListener):
+    COMMENT_DELIMITER = None
+
     def __init__(self, token_stream: CommonTokenStream, output_stream: TextIOWrapper, lexicon: AbstractLexicon):
         super().__init__()
         self.token_stream = token_stream
         self.output_stream = output_stream
         self.lexicon = lexicon
+        SdplGenerator.COMMENT_DELIMITER = lexicon.comment_delimiter()
 
         # format: {name: Relation}
         self.relations = dict()
@@ -35,7 +38,7 @@ class SdplGenerator(sdplListener):
         user_text = self.token_stream.getText(interval=(start_index, stop_index))
         self._out(user_text)
 
-    @print_comments('--')
+    @print_comments()
     def exitLibDecl(self, ctx: sdplParser.LibDeclContext):
         # REGISTER quotedString (AS ID )? ;
         # 0        1             2  3
@@ -48,7 +51,7 @@ class SdplGenerator(sdplListener):
         else:
             self.lexicon.emit_udf_registration(path_child.getText(), None)
 
-    @print_comments('--')
+    @print_comments()
     def exitRelationDecl(self, ctx: sdplParser.RelationDeclContext):
         relation_name = ctx.getChild(0).getText()
         if ctx.getChild(3).getText() == 'TABLE':
@@ -76,7 +79,7 @@ class SdplGenerator(sdplListener):
             raise UserWarning('Unknown clause {0}. Expecting either LOAD SCHEMA ... or LOAD TABLE ...'
                               .format(clause))
 
-    @print_comments('--')
+    @print_comments()
     def exitProjectionDecl(self, ctx: sdplParser.ProjectionDeclContext):
         # ID = PROJECTION ( projectionFields ) NOEMIT? ;
         # 0  1 2          3 4                5 7?      8?
@@ -182,16 +185,16 @@ class SdplGenerator(sdplListener):
             comp_field = ComputableField(field_name, field_type, expression)
             projection.new_field(comp_field)
 
-    @print_comments('--')
+    @print_comments()
     def exitExpandSchema(self, ctx: sdplParser.ExpandSchemaContext):
         # EXPAND SCHEMA ID ;
         # 0      1      2
         relation_name = ctx.getChild(2).getText()
         referenced_schema = self.relations[relation_name].schema
-        self._out('-- autocode: expanding relation {0} schema'.format(relation_name))
+        self._out('{0} autocode: expanding relation {1} schema'.format(self.COMMENT_DELIMITER, relation_name))
         self._out(self.lexicon.parse_schema(referenced_schema))
 
-    @print_comments('--')
+    @print_comments()
     def exitStoreDecl(self, ctx: sdplParser.StoreDeclContext):
         # STORE ID INTO TABLE quotedString FROM quotedString ;
         # 0     1  2    3     4            5    6
@@ -202,7 +205,7 @@ class SdplGenerator(sdplListener):
         data_sink = DataStore(table_name, repo_path, relation)
         self._out(self.lexicon.parse_datasink(data_sink))
 
-    @print_comments('--')
+    @print_comments()
     def exitStoreSchemaDecl(self, ctx: sdplParser.StoreSchemaDeclContext):
         # STORE SCHEMA ID INTO quotedString;
         # 0     1      2  3    4
@@ -211,7 +214,7 @@ class SdplGenerator(sdplListener):
         referenced_schema = self.relations[relation_name].schema
         schema.io.store(referenced_schema, schema_path)
 
-    @print_comments('--')
+    @print_comments()
     def exitJoinDecl(self, ctx: sdplParser.JoinDeclContext):
         # ID = JOIN joinElement (, joinElement)+ WITH PROJECTION ( projectionFields );
         # 0  1 2    3            4+
@@ -240,7 +243,7 @@ class SdplGenerator(sdplListener):
         # step 3: emit projection code
         self.lexicon.emit_join(relation_name, join_elements, projection)
 
-    @print_comments('--')
+    @print_comments()
     def exitFilterDecl(self, ctx: sdplParser.FilterDeclContext):
         # ID = FILTER ID BY filterExpression ;
         # 0  1 2      3  4  5
@@ -249,7 +252,7 @@ class SdplGenerator(sdplListener):
         self.relations[relation_name] = self.relations[source_relation_name]
         self._out_bypass_parser(ctx)
 
-    @print_comments('--')
+    @print_comments()
     def exitOrderByDecl(self, ctx: sdplParser.OrderByDeclContext):
         # ID = ORDER ID BY relationColumn (, relationColumn)* ;
         # 0  1 2     3  4  5               6+
@@ -258,7 +261,7 @@ class SdplGenerator(sdplListener):
         self.relations[relation_name] = self.relations[source_relation_name]
         self._out_bypass_parser(ctx)
 
-    @print_comments('--')
+    @print_comments()
     def exitGroupByDecl(self, ctx: sdplParser.GroupByDeclContext):
         # ID = GROUP ID BY relationColumn (, relationColumn)* ;
         # 0  1 2     3  4  5               6+
@@ -267,11 +270,11 @@ class SdplGenerator(sdplListener):
         self.relations[relation_name] = self.relations[source_relation_name]
         self._out_bypass_parser(ctx)
 
-    @print_comments('--')
+    @print_comments()
     def exitQuotedCode(self, ctx: sdplParser.QuotedCodeContext):
         # QUOTE_DELIM .*? QUOTE_DELIM ;
         ctx.start = ctx.children[1].symbol  # skipping starting QUOTE_DELIM
         ctx.stop = ctx.children[-2].symbol  # skipping closing QUOTE_DELIM
-        self._out('-- quoted source code: start')
+        self._out('{0} quoted source code: start'.format(self.COMMENT_DELIMITER))
         self._out_bypass_parser(ctx)
-        self._out('-- quoted source code: finish')
+        self._out('{0} quoted source code: finish'.format(self.COMMENT_DELIMITER))

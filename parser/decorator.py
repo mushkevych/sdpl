@@ -4,9 +4,9 @@ from antlr4 import ParserRuleContext
 from grammar.sdplLexer import sdplLexer
 
 
-def print_comments(delimiter:str):
+def print_comments():
     """ prints SDPL comments into the output stream
-        :param delimiter: specifies the delimiter that is placed into the output stream before the comment
+        NOTICE: comment delimiter is taken as `self.COMMENT_DELIMITER`
     """
 
     def _print_comments(method):
@@ -22,7 +22,7 @@ def print_comments(delimiter:str):
             cmt_channel = self.token_stream.getHiddenTokensToLeft(ctx.start.tokenIndex, sdplLexer.CHANNEL_COMMENTS)
             if cmt_channel:
                 for comment in cmt_channel:
-                    self.output_stream.write('{0} {1}'.format(delimiter, comment.text))
+                    self.output_stream.write('{0} {1}'.format(self.COMMENT_DELIMITER, comment.text))
 
             return method(self, ctx)
 
