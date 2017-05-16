@@ -79,7 +79,7 @@ joinDecl
 joinElement     : ID 'BY' relationColumns ;
 
 relationColumns : '(' relationColumn (',' relationColumn)* ')' ;
-relationColumn  : ID '.' ID ;
+relationColumn  : ID ('.' ID) ? ;
 
 
 // FILTERING

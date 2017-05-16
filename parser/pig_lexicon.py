@@ -1,4 +1,3 @@
-
 __author__ = 'Bohdan Mushkevych'
 
 from io import TextIOWrapper
@@ -144,13 +143,17 @@ class PigLexicon(AbstractLexicon):
         self._out('    ' + output)
         self._out(';')
 
-    def emit_join(self, relation_name: str, join_elements: dict, projection: RelationProjection) -> None:
+    def emit_join(self, relation_name: str, column_names: list, projection: RelationProjection) -> None:
         """
         :param relation_name: name of joined relation
-        :param join_elements: format {element_name: [join_column_a, ..., join_column_z]}
+        :param column_names: list in format [(relation_name, column_name), ..., (relation_name, column_name)]
         :param projection: 
         :return: None 
         """
+
+        # step 0: reformat list [(relation_name, column_name), ..., (relation_name, column_name)] into
+        # dict {relation_name: [column_name, ..., column_name]}
+        join_elements = self.column_list_to_dict(column_names)
 
         # step 1: Generate JOIN name as JOIN_SA_SB_..._SZ
         join_name = 'JOIN'
@@ -164,6 +167,8 @@ class PigLexicon(AbstractLexicon):
             else:
                 join_body += ', {0} BY '.format(element_name)
 
+            # format output so it contains relation name: a -> A.a
+            join_columns = ['{0}.{1}'.format(element_name, column_name) for column_name in join_columns]
             join_body += '(' + ','.join(join_columns) + ')'
 
         self._out('{0} = {1} ;'.format(join_name, join_body))
@@ -171,3 +176,18 @@ class PigLexicon(AbstractLexicon):
         # step 2: expand schema with FOREACH ... GENERATE
         output_fields = projection.fields + projection.computable_fields
         self.emit_schema_projection(relation_name, join_name, output_fields)
+
+    def emit_filterby(self, relation_name: str, source_relation_name: str, column_names: list) -> None:
+        pass
+
+    def emit_orderby(self, relation_name: str, source_relation_name: str, column_names: list) -> None:
+        # ID = ORDER ID BY relationColumn (, relationColumn)* ;
+        by_clause = ['{0}.{1}'.format(*entry) for entry in column_names]
+        out = ', '.join(by_clause)
+        self._out('{0} = ORDER {1} BY {2} ;'.format(relation_name, source_relation_name, out))
+
+    def emit_groupby(self, relation_name: str, source_relation_name: str, column_names: list):
+        # ID = ORDER ID BY relationColumn (, relationColumn)* ;
+        by_clause = ['{0}.{1}'.format(*entry) for entry in column_names]
+        out = ', '.join(by_clause)
+        self._out('{0} = GROUP {1} BY {2} ;'.format(relation_name, source_relation_name, out))

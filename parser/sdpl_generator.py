@@ -1,6 +1,5 @@
 __author__ = 'Bohdan Mushkevych'
 
-from collections import OrderedDict
 from io import TextIOWrapper
 from antlr4 import *
 
@@ -185,6 +184,27 @@ class SdplGenerator(sdplListener):
             comp_field = ComputableField(field_name, field_type, expression)
             projection.new_field(comp_field)
 
+    def _parse_relation_columns(self, ctx_list: list, default_relation_name=None) -> list:
+        """
+        :param ctx_list: list of RelationColumnContext
+        :param default_relation_name: 
+        :return: list in format [(relation_name, column_name), ..., (relation_name, column_name)] 
+        """
+        column_names = list()
+
+        for ctx in ctx_list:
+            assert isinstance(ctx, sdplParser.RelationColumnContext)
+            text = ctx.getText()
+            if '.' in text:
+                relation_name, column_name = text.split('.')
+            else:
+                relation_name, column_name = default_relation_name, text
+
+            entry = (relation_name, column_name)
+            column_names.append(entry)
+
+        return column_names
+
     @print_comments()
     def exitExpandSchema(self, ctx: sdplParser.ExpandSchemaContext):
         # EXPAND SCHEMA ID ;
@@ -226,14 +246,14 @@ class SdplGenerator(sdplListener):
         relation_name = ctx.getChild(0).getText()
         ctx_join_elements = ctx.getTypedRuleContexts(sdplParser.JoinElementContext)
 
-        join_elements = OrderedDict()
+        column_names = list()
         for ctx_join_element in ctx_join_elements:
             element_id = ctx_join_element.getChild(0).getText()
             ctx_columns = ctx_join_element.getTypedRuleContexts(sdplParser.RelationColumnsContext)
             ctx_columns = ctx_columns[0]  # only one block of relation columns is expected
 
-            join_columns = ctx_columns.getText()
-            join_elements[element_id] = join_columns.strip('(').strip(')').split(',')
+            ctx_list = ctx_columns.getTypedRuleContexts(sdplParser.RelationColumnContext)
+            column_names += self._parse_relation_columns(ctx_list, element_id)
 
         # step 2: perform schema projection
         ctx_proj_fields = ctx.getTypedRuleContexts(sdplParser.ProjectionFieldsContext)
@@ -241,7 +261,7 @@ class SdplGenerator(sdplListener):
         projection = self.parse_schema_projection(relation_name, ctx_proj_fields)
 
         # step 3: emit projection code
-        self.lexicon.emit_join(relation_name, join_elements, projection)
+        self.lexicon.emit_join(relation_name, column_names, projection)
 
     @print_comments()
     def exitFilterDecl(self, ctx: sdplParser.FilterDeclContext):
@@ -257,18 +277,26 @@ class SdplGenerator(sdplListener):
         # ID = ORDER ID BY relationColumn (, relationColumn)* ;
         # 0  1 2     3  4  5               6+
         relation_name = ctx.getChild(0).getText()
+        ctx_list = ctx.getTypedRuleContexts(sdplParser.RelationColumnContext)
         source_relation_name = ctx.getChild(3).getText()
         self.relations[relation_name] = self.relations[source_relation_name]
-        self._out_bypass_parser(ctx)
+
+        # emit order-by code
+        column_names = self._parse_relation_columns(ctx_list, source_relation_name)
+        self.lexicon.emit_orderby(relation_name, source_relation_name, column_names)
 
     @print_comments()
     def exitGroupByDecl(self, ctx: sdplParser.GroupByDeclContext):
         # ID = GROUP ID BY relationColumn (, relationColumn)* ;
         # 0  1 2     3  4  5               6+
         relation_name = ctx.getChild(0).getText()
+        ctx_list = ctx.getTypedRuleContexts(sdplParser.RelationColumnContext)
         source_relation_name = ctx.getChild(3).getText()
         self.relations[relation_name] = self.relations[source_relation_name]
-        self._out_bypass_parser(ctx)
+
+        # emit order-by code
+        column_names = self._parse_relation_columns(ctx_list, source_relation_name)
+        self.lexicon.emit_groupby(relation_name, source_relation_name, column_names)
 
     @print_comments()
     def exitQuotedCode(self, ctx: sdplParser.QuotedCodeContext):

@@ -1,0 +1,21 @@
+# snippet: testing GROUP BY and ORDER BY construct
+
+# load A
+A = LOAD TABLE 'table_name' FROM 'tests/repo_dfs.yaml'
+        WITH SCHEMA 'tests/schema_a.yaml' VERSION 1 ;
+
+# load B
+B = LOAD TABLE 'file_blob' FROM 'tests/repo_dfs.yaml'
+        WITH SCHEMA 'tests/schema_b.yaml' VERSION 1;
+
+# ORDER BY clause
+C = ORDER A BY A.a, A.aa, aaa;
+
+# ORDER BY clause
+D = GROUP B BY b, B.bb, bbb;
+
+# user formatted comments ahead of STORE C
+STORE C INTO TABLE 'table_name' FROM 'tests/repo_dfs.yaml';
+
+# user formatted comments ahead of STORE D
+STORE D INTO TABLE 'table_name' FROM 'tests/repo_dfs.yaml';

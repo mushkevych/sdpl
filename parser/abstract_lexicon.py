@@ -1,6 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 from io import TextIOWrapper
+from collections import OrderedDict
 
 from parser.data_store import DataStore
 from parser.projection import RelationProjection, FieldProjection
@@ -14,6 +15,18 @@ class AbstractLexicon(object):
     def _out(self, text):
         self.output_stream.write(text)
         self.output_stream.write('\n')
+
+    def column_list_to_dict(self, column_names:list):
+        # reformat list [(relation_name, column_name), ..., (relation_name, column_name)] into
+        # dict {relation_name: [column_name, ..., column_name]}
+        join_elements = OrderedDict()
+        for entry in column_names:
+            element_name, entry_column = entry
+            if element_name not in join_elements:
+                join_elements[element_name] = list()
+
+            join_elements[element_name].append(entry_column)
+        return join_elements
 
     @classmethod
     def comment_delimiter(cls):
@@ -43,5 +56,14 @@ class AbstractLexicon(object):
     def emit_schema_projection(self, left_relation_name: str, right_relation_name: str, output_fields: list):
         pass
 
-    def emit_join(self, relation_name: str, join_elements: dict, projection: RelationProjection) -> None:
+    def emit_join(self, relation_name: str, column_names: list, projection: RelationProjection) -> None:
+        pass
+
+    def emit_filterby(self, relation_name: str, source_relation_name: str, column_names: list) -> None:
+        pass
+
+    def emit_orderby(self, relation_name: str, source_relation_name: str, column_names: list) -> None:
+        pass
+
+    def emit_groupby(self, relation_name: str, source_relation_name: str, column_names: list) -> None:
         pass

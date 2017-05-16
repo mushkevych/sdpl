@@ -1,8 +1,8 @@
-from typing import Union
-
 __author__ = 'Bohdan Mushkevych'
 
 from io import TextIOWrapper
+from typing import Union
+
 from schema.sdpl_schema import Schema, Field, MIN_VERSION_NUMBER, DataType, FieldType
 from parser.data_store import DataStore
 from parser.projection import RelationProjection, FieldProjection, ComputableField
@@ -162,29 +162,36 @@ class SparkLexicon(AbstractLexicon):
         self._out('    ' + output)
         self._out(')')
 
-    def emit_join(self, relation_name: str, join_elements: dict, projection: RelationProjection) -> None:
+    def emit_join(self, relation_name: str, column_names: list, projection: RelationProjection) -> None:
         """
         :param relation_name: name of joined relation
-        :param join_elements: format {element_name: [join_column_a, ..., join_column_z]}
+        :param column_names: list in format [(relation_name, column_name), ..., (relation_name, column_name)]
         :param projection: 
         :return: None 
         """
 
-        def join_criteria(a_join_columns, b_join_columns):
-            logic_tokens = ['({0} == {1})'.format(a_column, b_column)
+        def join_criteria(a_relation, a_join_columns, b_relation, b_join_columns):
+            logic_tokens = ['({0}.{1} == {2}.{3})'.format(a_relation, a_column, b_relation, b_column)
                             for a_column, b_column in zip(a_join_columns, b_join_columns)]
             return ' & '.join(logic_tokens)
 
+        # step 0: reformat list [(relation_name, column_name), ..., (relation_name, column_name)] into
+        # dict {relation_name: [column_name, ..., column_name]}
+        join_elements = self.column_list_to_dict(column_names)
+
         # step 1: Generate JOIN body
+        a_join_relation = None
         a_join_columns = None
         join_body = ''
         for element_name, join_columns in join_elements.items():
             if not join_body:
                 join_body = '{0}'.format(element_name)
+                a_join_relation = element_name
                 a_join_columns = join_columns
                 continue
 
-            criteria = join_criteria(a_join_columns, join_columns)
+            criteria = join_criteria(a_join_relation, a_join_columns, element_name, join_columns)
+            a_join_relation = element_name
             a_join_columns = join_columns
             join_body += ".join({0}, {1}, 'left_outer')".format(element_name, criteria)
 
@@ -195,3 +202,18 @@ class SparkLexicon(AbstractLexicon):
         # step 3: expand schema with FOREACH ... GENERATE
         output_fields = projection.fields + projection.computable_fields
         self.emit_schema_projection(relation_name, join_name, output_fields)
+
+    def emit_filterby(self, relation_name: str, source_relation_name: str, column_names: list) -> None:
+        pass
+
+    def emit_orderby(self, relation_name: str, source_relation_name: str, column_names: list) -> None:
+        # ID = ID.orderBy(relationColumn (, relationColumn)*) ;
+        by_clause = ['{0}.{1}'.format(*entry) for entry in column_names]
+        out = ', '.join(by_clause)
+        self._out('{0} = {1}.orderBy({2})'.format(relation_name, source_relation_name, out))
+
+    def emit_groupby(self, relation_name: str, source_relation_name: str, column_names: list):
+        # ID = ID.groupBy(relationColumn (, relationColumn)*) ;
+        by_clause = ['{0}.{1}'.format(*entry) for entry in column_names]
+        out = ', '.join(by_clause)
+        self._out('{0} = {1}.groupBy({2})'.format(relation_name, source_relation_name, out))
