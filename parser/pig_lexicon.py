@@ -2,13 +2,12 @@ __author__ = 'Bohdan Mushkevych'
 
 from io import TextIOWrapper
 from typing import Union
-from antlr4.tree.Tree import TerminalNodeImpl
 
 from grammar.sdplParser import sdplParser
-from schema.sdpl_schema import Schema, Field, MIN_VERSION_NUMBER, DataType, Compression
+from parser.abstract_lexicon import AbstractLexicon
 from parser.data_store import DataStore
 from parser.projection import RelationProjection, FieldProjection, ComputableField
-from parser.abstract_lexicon import AbstractLexicon
+from schema.sdpl_schema import Schema, Field, MIN_VERSION_NUMBER, DataType, Compression
 
 
 class PigLexicon(AbstractLexicon):
@@ -129,15 +128,13 @@ class PigLexicon(AbstractLexicon):
         out = '\n    ' + out + '\n'
         return out
 
-    def parse_filter_operation(self, ctx: sdplParser.FilterOperationContext):
-        return ctx.getText()
-
     def parse_operand(self, ctx: sdplParser.OperandContext):
+        # SDPL operand semantics are the same as in Pig
         return ctx.getText()
 
-    def parse_filter_terminal_node(self, element: str):
-        # SDPL comparison operators are the same as in Pig
-        return element
+    def parse_filter_terminal_node(self, element: str) -> tuple:
+        # SDPL terminal node are: "AND" "OR" and are the same as in Pig
+        return element, None
 
     def emit_udf_registration(self, udf_fqfp: str, udf_alias:str):
         out = 'REGISTER {0}'.format(udf_fqfp)

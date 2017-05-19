@@ -140,6 +140,7 @@ compOperator
     | CO_LT
     | CO_GE
     | CO_GT
+    | CO_LIKE
     ;
 
 arithmOperator

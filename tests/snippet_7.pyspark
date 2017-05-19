@@ -15,8 +15,8 @@ BANDA = sqlContext.read.csv('s3://my_bucket.s3.amazonaws.com:443/path/within/buc
     StructField('another_column', BooleanType, False),
     StructField('yet_another_column', BooleanType, False) ])
 , sep=',')
-ORO = FILTER ANDA BY A.a == 3 AND (A.aa >= 0 OR A.aaa < -100);
-BORO = FILTER BANDA BY B.b != 'Bebe' OR B.bb == 'Zeze';
+ORO = ANDA.filter((col(A.a) == 3) & ((col(A.aa) >= 0) | (col(A.aaa) < -100)))
+BORO = BANDA.filter((col(B.b) != 'Bebe') | (col(B.bb) == 'Zeze'))
 sqlContext.write.csv('s3://my_bucket.s3.amazonaws.com:443/path/within/bucket/table_name_c', compression='SNAPPY', sep=',')
 sqlContext.write.csv('s3://my_bucket.s3.amazonaws.com:443/path/within/bucket/table_name_d', compression='SNAPPY', sep=',')
 # SDPL output: EOF

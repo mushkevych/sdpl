@@ -17,8 +17,8 @@ BANDA = LOAD 's3://my_bucket.s3.amazonaws.com:443/path/within/bucket/file_blob' 
     another_column:BOOLEAN,
     yet_another_column:BOOLEAN
 );
-ORO = FILTER ANDA BY A.a == 3 AND (A.aa >= 0 OR A.aaa < -100);
-BORO = FILTER BANDA BY B.b != 'Bebe' OR B.bb == 'Zeze';
+ORO = FILTER ANDA BY (A.a == 3) AND ((A.aa >= 0) OR (A.aaa < -100)) ;
+BORO = FILTER BANDA BY (B.b != 'Bebe') OR (B.bb == 'Zeze') ;
 STORE ANDA INTO 's3://my_bucket.s3.amazonaws.com:443/path/within/bucket/table_name_c' USING PigStorage(',') ;
 STORE BANDA INTO 's3://my_bucket.s3.amazonaws.com:443/path/within/bucket/table_name_d' USING PigStorage(',') ;
 -- SDPL output: EOF

@@ -9,6 +9,8 @@ C = FILTER A BY A.a == 3 AND (A.aaa >= 0 OR A.aa < -100 OR (A.a != 12.12 AND A.a
 D = FILTER B BY B.b != 'Bebe' OR B.bb == 'Zeze' ;
 E = FILTER B BY B.b != 'table' AND B.bb == 'Bebe' OR B.bbb > -100;
 F = FILTER B BY (B.b != 'Bebe');
+G = FILTER B BY B.bb != 'Simple';
+H = FILTER B BY B.bbb LIKE '%match%';
 
 STORE C INTO TABLE 'table_name_c' FROM 'tests/repo_dfs.yaml';
 STORE D INTO TABLE 'table_name_d' FROM 'tests/repo_dfs.yaml';

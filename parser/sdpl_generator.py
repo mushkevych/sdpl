@@ -264,19 +264,67 @@ class SdplGenerator(sdplListener):
         # step 3: emit projection code
         self.lexicon.emit_join(relation_name, column_names, projection)
 
+    def _parse_filter_operation(self, ctx: sdplParser.FilterOperationContext):
+        closing_statement = None
+        out = '('
+        for element in ctx.children:
+            if isinstance(element, sdplParser.FilterOperationContext):
+                out += self._parse_filter_operation(element)
+            elif isinstance(element, sdplParser.OperandContext):
+                out += self.lexicon.parse_operand(element)
+            elif isinstance(element, sdplParser.CompOperatorContext):
+                # > < == <= >= LIKE
+                parsed_element, closing_statement = self.lexicon.parse_filter_terminal_node(element.getText())
+                if closing_statement:
+                    out_format = '{0}'
+                else:
+                    out_format = ' {0} '
+                out += out_format.format(parsed_element)
+                continue
+            elif isinstance(element, TerminalNodeImpl):
+                # ) (
+                if element.getText() in ['(', ')']:
+                    # skip ( and ) and let them be processed by the `_parse_filter_expression`
+                    pass
+                else:
+                    raise ValueError('Unsupported value {0} of filter operation context child'.
+                                     format(element.getText()))
+            else:
+                raise TypeError('Unsupported type {0} of filter operation context child with value {1}'.
+                                format(type(element), element.getText()))
+
+            if closing_statement:
+                out += closing_statement
+                closing_statement = None
+
+        out += ')'
+        return out
+
     def _parse_filter_expression(self, ctx: sdplParser.FilterExpressionContext):
         out = ''
-        for filter_element in ctx.children:
-            if isinstance(filter_element, sdplParser.FilterExpressionContext):
-                out += self._parse_filter_expression(filter_element)
-            elif isinstance(filter_element, sdplParser.FilterOperationContext):
-                out += self.lexicon.parse_filter_operation(filter_element)
-            elif isinstance(filter_element, TerminalNodeImpl):
-                # AND / OR
-                out += self.lexicon.parse_filter_terminal_node(filter_element.getText())
+        for element in ctx.children:
+            if isinstance(element, sdplParser.FilterExpressionContext):
+                out += self._parse_filter_expression(element)
+            elif isinstance(element, sdplParser.FilterOperationContext):
+                out += self._parse_filter_operation(element)
+            elif isinstance(element, TerminalNodeImpl):
+                # AND OR ) (
+                if element.getText() in ['(', ')']:
+                    # add no space for ( and )
+                    out_format = '{0}'
+                else:
+                    # add space around AND and OR
+                    out_format = ' {0} '
+
+                parsed_element, closing_statement = self.lexicon.parse_filter_terminal_node(element.getText())
+                if closing_statement:
+                    raise ValueError('Unsupported closing statement {0} for terminal node {1}'.
+                                     format(closing_statement, element.getText()))
+
+                out += out_format.format(parsed_element)
             else:
-                raise TypeError('Unsupported type of filter expression context child: {0}'.format(type(filter_element)))
-            out += ' '
+                raise TypeError('Unsupported type {0} of filter expression context child with value {1}'.
+                                format(type(element), element.getText()))
         return out
 
     @print_comments()

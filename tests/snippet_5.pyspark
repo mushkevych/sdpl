@@ -15,10 +15,12 @@ B = sqlContext.read.csv('s3://my_bucket.s3.amazonaws.com:443/path/within/bucket/
     StructField('another_column', BooleanType, False),
     StructField('yet_another_column', BooleanType, False) ])
 , sep=',')
-C = FILTER A BY A.a == 3 AND (A.aaa >= 0 OR A.aa < -100 OR (A.a != 12.12 AND A.a > 789) ) ;
-D = FILTER B BY B.b != 'Bebe' OR B.bb == 'Zeze' ;
-E = FILTER B BY B.b != 'table' AND B.bb == 'Bebe' OR B.bbb > -100;
-F = FILTER B BY (B.b != 'Bebe');
+C = A.filter((col(A.a) == 3) & ((col(A.aaa) >= 0) | (col(A.aa) < -100) | ((col(A.a) != 12.12) & (col(A.a) > 789))))
+D = B.filter((col(B.b) != 'Bebe') | (col(B.bb) == 'Zeze'))
+E = B.filter((col(B.b) != 'table') & (col(B.bb) == 'Bebe') | (col(B.bbb) > -100))
+F = B.filter(((col(B.b) != 'Bebe')))
+G = B.filter((col(B.bb) != 'Simple'))
+H = B.filter((col(B.bbb).like('%match%')))
 sqlContext.write.csv('s3://my_bucket.s3.amazonaws.com:443/path/within/bucket/table_name_c', compression='SNAPPY', sep=',')
 sqlContext.write.csv('s3://my_bucket.s3.amazonaws.com:443/path/within/bucket/table_name_d', compression='SNAPPY', sep=',')
 # SDPL output: EOF

@@ -2,13 +2,12 @@ __author__ = 'Bohdan Mushkevych'
 
 from io import TextIOWrapper
 from typing import Union
-from antlr4.tree.Tree import TerminalNodeImpl
 
 from grammar.sdplParser import sdplParser
-from schema.sdpl_schema import Schema, Field, MIN_VERSION_NUMBER, DataType, FieldType
+from parser.abstract_lexicon import AbstractLexicon
 from parser.data_store import DataStore
 from parser.projection import RelationProjection, FieldProjection, ComputableField
-from parser.abstract_lexicon import AbstractLexicon
+from schema.sdpl_schema import Schema, Field, MIN_VERSION_NUMBER, DataType, FieldType
 
 SPARK_MAPPING = {
     FieldType.INTEGER.name: 'IntegerType',
@@ -146,22 +145,22 @@ class SparkLexicon(AbstractLexicon):
         out = 'StructType([ {0} ])\n'.format(out)
         return out
 
-    def parse_filter_operation(self, ctx: sdplParser.FilterOperationContext):
-        return ctx.getText()
-
     def parse_operand(self, ctx: sdplParser.OperandContext):
         # give special treatment to the `sdplParser.RelationColumnContext` instances by wrapping them into 'col'
-        return ctx.getText()
-
-    def parse_filter_terminal_node(self, element: str):
-        if element == 'LIKE':
-            return '.like('
-        elif element == 'AND':
-            return '&'
-        elif element == 'OR':
-            return '|'
+        if len(ctx.children) == 1 and isinstance(ctx.children[0], sdplParser.RelationColumnContext):
+            return 'col({0})'.format(ctx.getText())
         else:
-            return element
+            return ctx.getText()
+
+    def parse_filter_terminal_node(self, element: str) -> tuple:
+        if element == 'LIKE':
+            return '.like(', ')'
+        elif element == 'AND':
+            return '&', None
+        elif element == 'OR':
+            return '|', None
+        else:
+            return element, None
 
     def emit_udf_registration(self, udf_fqfp: str, udf_alias: str):
         if not udf_alias:

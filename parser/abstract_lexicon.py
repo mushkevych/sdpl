@@ -2,7 +2,6 @@ __author__ = 'Bohdan Mushkevych'
 
 from io import TextIOWrapper
 from collections import OrderedDict
-from antlr4.tree.Tree import TerminalNodeImpl
 
 from grammar.sdplParser import sdplParser
 from parser.data_store import DataStore
@@ -49,25 +48,14 @@ class AbstractLexicon(object):
     def parse_schema(self, schema: Schema, max_version=MIN_VERSION_NUMBER):
         pass
 
-    def parse_filter_operation(self, ctx: sdplParser.FilterOperationContext):
-        out = '('
-        for element in ctx.children:
-            if isinstance(element, sdplParser.FilterOperationContext):
-                out += self.parse_filter_operation(element)
-            elif isinstance(element, sdplParser.OperandContext):
-                out += self.parse_operand(element)
-            elif isinstance(element, sdplParser.CompOperatorContext):
-                # > < == <= >= LIKE
-                out += self.parse_filter_terminal_node(element.getText())
-            else:
-                raise TypeError('Unsupported type of filter expression context child: {0}'.format(type(element)))
-            out += ' '
-        return out + ')'
-
     def parse_operand(self, ctx: sdplParser.OperandContext):
         pass
 
-    def parse_filter_terminal_node(self, element: str):
+    def parse_filter_terminal_node(self, element: str) -> tuple:
+        """
+        :param element: 
+        :return: (parsed_element, closing_statement) 
+        """
         pass
 
     def emit_udf_registration(self, udf_fqfp: str, udf_alias:str):

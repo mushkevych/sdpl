@@ -15,8 +15,8 @@ B = sqlContext.read.csv('s3://my_bucket.s3.amazonaws.com:443/path/within/bucket/
     StructField('another_column', BooleanType, False),
     StructField('yet_another_column', BooleanType, False) ])
 , sep=',')
-C = FILTER A BY A.a == 3 AND (A.aa >= 0 OR A.aaa < -100);
-D = FILTER B BY B.b != 'Bebe' OR B.bb == 'Zeze';
+C = A.filter((col(A.a) == 3) & ((col(A.aa) >= 0) | (col(A.aaa) < -100)))
+D = B.filter((col(B.b) != 'Bebe') | (col(B.bb) == 'Zeze'))
 # quoted source code: start
 X = LOAD 'data' AS (a1:int,a2:int,a3:int);
 DUMP X;

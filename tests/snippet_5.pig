@@ -17,10 +17,12 @@ B = LOAD 's3://my_bucket.s3.amazonaws.com:443/path/within/bucket/file_blob' USIN
     another_column:BOOLEAN,
     yet_another_column:BOOLEAN
 );
-C = FILTER A BY A.a == 3 AND (A.aaa >= 0 OR A.aa < -100 OR (A.a != 12.12 AND A.a > 789) ) ;
-D = FILTER B BY B.b != 'Bebe' OR B.bb == 'Zeze' ;
-E = FILTER B BY B.b != 'table' AND B.bb == 'Bebe' OR B.bbb > -100;
-F = FILTER B BY (B.b != 'Bebe');
+C = FILTER A BY (A.a == 3) AND ((A.aaa >= 0) OR (A.aa < -100) OR ((A.a != 12.12) AND (A.a > 789))) ;
+D = FILTER B BY (B.b != 'Bebe') OR (B.bb == 'Zeze') ;
+E = FILTER B BY (B.b != 'table') AND (B.bb == 'Bebe') OR (B.bbb > -100) ;
+F = FILTER B BY ((B.b != 'Bebe')) ;
+G = FILTER B BY (B.bb != 'Simple') ;
+H = FILTER B BY (B.bbb LIKE '%match%') ;
 STORE A INTO 's3://my_bucket.s3.amazonaws.com:443/path/within/bucket/table_name_c' USING PigStorage(',') ;
 STORE B INTO 's3://my_bucket.s3.amazonaws.com:443/path/within/bucket/table_name_d' USING PigStorage(',') ;
 -- SDPL output: EOF

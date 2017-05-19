@@ -17,8 +17,8 @@ B = LOAD 's3://my_bucket.s3.amazonaws.com:443/path/within/bucket/file_blob' USIN
     another_column:BOOLEAN,
     yet_another_column:BOOLEAN
 );
-C = FILTER A BY A.a == 3 AND (A.aa >= 0 OR A.aaa < -100);
-D = FILTER B BY B.b != 'Bebe' OR B.bb == 'Zeze';
+C = FILTER A BY (A.a == 3) AND ((A.aa >= 0) OR (A.aaa < -100)) ;
+D = FILTER B BY (B.b != 'Bebe') OR (B.bb == 'Zeze') ;
 -- quoted source code: start
 X = LOAD 'data' AS (a1:int,a2:int,a3:int);
 DUMP X;
