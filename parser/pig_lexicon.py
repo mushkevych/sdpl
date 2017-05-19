@@ -2,7 +2,9 @@ __author__ = 'Bohdan Mushkevych'
 
 from io import TextIOWrapper
 from typing import Union
+from antlr4.tree.Tree import TerminalNodeImpl
 
+from grammar.sdplParser import sdplParser
 from schema.sdpl_schema import Schema, Field, MIN_VERSION_NUMBER, DataType, Compression
 from parser.data_store import DataStore
 from parser.projection import RelationProjection, FieldProjection, ComputableField
@@ -127,6 +129,16 @@ class PigLexicon(AbstractLexicon):
         out = '\n    ' + out + '\n'
         return out
 
+    def parse_filter_operation(self, ctx: sdplParser.FilterOperationContext):
+        return ctx.getText()
+
+    def parse_operand(self, ctx: sdplParser.OperandContext):
+        return ctx.getText()
+
+    def parse_filter_terminal_node(self, element: str):
+        # SDPL comparison operators are the same as in Pig
+        return element
+
     def emit_udf_registration(self, udf_fqfp: str, udf_alias:str):
         out = 'REGISTER {0}'.format(udf_fqfp)
         out += ' AS {0};'.format(udf_alias) if udf_alias else ';'
@@ -177,8 +189,8 @@ class PigLexicon(AbstractLexicon):
         output_fields = projection.fields + projection.computable_fields
         self.emit_schema_projection(relation_name, join_name, output_fields)
 
-    def emit_filterby(self, relation_name: str, source_relation_name: str, column_names: list) -> None:
-        pass
+    def emit_filterby(self, relation_name: str, source_relation_name: str, filter_exp: str) -> None:
+        self._out('{0} = FILTER {1} BY {2} ;'.format(relation_name, source_relation_name, filter_exp))
 
     def emit_orderby(self, relation_name: str, source_relation_name: str, column_names: list) -> None:
         # ID = ORDER ID BY relationColumn (, relationColumn)* ;

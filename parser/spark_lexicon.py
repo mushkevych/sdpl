@@ -2,7 +2,9 @@ __author__ = 'Bohdan Mushkevych'
 
 from io import TextIOWrapper
 from typing import Union
+from antlr4.tree.Tree import TerminalNodeImpl
 
+from grammar.sdplParser import sdplParser
 from schema.sdpl_schema import Schema, Field, MIN_VERSION_NUMBER, DataType, FieldType
 from parser.data_store import DataStore
 from parser.projection import RelationProjection, FieldProjection, ComputableField
@@ -144,6 +146,23 @@ class SparkLexicon(AbstractLexicon):
         out = 'StructType([ {0} ])\n'.format(out)
         return out
 
+    def parse_filter_operation(self, ctx: sdplParser.FilterOperationContext):
+        return ctx.getText()
+
+    def parse_operand(self, ctx: sdplParser.OperandContext):
+        # give special treatment to the `sdplParser.RelationColumnContext` instances by wrapping them into 'col'
+        return ctx.getText()
+
+    def parse_filter_terminal_node(self, element: str):
+        if element == 'LIKE':
+            return '.like('
+        elif element == 'AND':
+            return '&'
+        elif element == 'OR':
+            return '|'
+        else:
+            return element
+
     def emit_udf_registration(self, udf_fqfp: str, udf_alias: str):
         if not udf_alias:
             raise UserWarning('Full REGISTER ... AS ... clause is required for Spark generation while registering {0}'.
@@ -203,8 +222,8 @@ class SparkLexicon(AbstractLexicon):
         output_fields = projection.fields + projection.computable_fields
         self.emit_schema_projection(relation_name, join_name, output_fields)
 
-    def emit_filterby(self, relation_name: str, source_relation_name: str, column_names: list) -> None:
-        pass
+    def emit_filterby(self, relation_name: str, source_relation_name: str, filter_exp: str) -> None:
+        self._out('{0} = {1}.filter({2})'.format(relation_name, source_relation_name, filter_exp))
 
     def emit_orderby(self, relation_name: str, source_relation_name: str, column_names: list) -> None:
         # ID = ID.orderBy(relationColumn (, relationColumn)*) ;

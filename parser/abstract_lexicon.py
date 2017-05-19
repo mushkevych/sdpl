@@ -2,7 +2,9 @@ __author__ = 'Bohdan Mushkevych'
 
 from io import TextIOWrapper
 from collections import OrderedDict
+from antlr4.tree.Tree import TerminalNodeImpl
 
+from grammar.sdplParser import sdplParser
 from parser.data_store import DataStore
 from parser.projection import RelationProjection, FieldProjection
 from schema.sdpl_schema import Field, Schema, MIN_VERSION_NUMBER
@@ -47,6 +49,27 @@ class AbstractLexicon(object):
     def parse_schema(self, schema: Schema, max_version=MIN_VERSION_NUMBER):
         pass
 
+    def parse_filter_operation(self, ctx: sdplParser.FilterOperationContext):
+        out = '('
+        for element in ctx.children:
+            if isinstance(element, sdplParser.FilterOperationContext):
+                out += self.parse_filter_operation(element)
+            elif isinstance(element, sdplParser.OperandContext):
+                out += self.parse_operand(element)
+            elif isinstance(element, sdplParser.CompOperatorContext):
+                # > < == <= >= LIKE
+                out += self.parse_filter_terminal_node(element.getText())
+            else:
+                raise TypeError('Unsupported type of filter expression context child: {0}'.format(type(element)))
+            out += ' '
+        return out + ')'
+
+    def parse_operand(self, ctx: sdplParser.OperandContext):
+        pass
+
+    def parse_filter_terminal_node(self, element: str):
+        pass
+
     def emit_udf_registration(self, udf_fqfp: str, udf_alias:str):
         pass
 
@@ -59,7 +82,7 @@ class AbstractLexicon(object):
     def emit_join(self, relation_name: str, column_names: list, projection: RelationProjection) -> None:
         pass
 
-    def emit_filterby(self, relation_name: str, source_relation_name: str, column_names: list) -> None:
+    def emit_filterby(self, relation_name: str, source_relation_name: str, filter_exp: str) -> None:
         pass
 
     def emit_orderby(self, relation_name: str, source_relation_name: str, column_names: list) -> None:

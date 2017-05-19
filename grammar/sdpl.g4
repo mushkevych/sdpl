@@ -164,6 +164,8 @@ CO_LE   : '<=' ;
 CO_LT   : '<'  ;
 CO_GE   : '>=' ;
 CO_GT   : '>'  ;
+CO_LIKE : 'LIKE' ;
+
 
 AND     : 'AND' ;
 OR      : 'OR'  ;

@@ -17,19 +17,3 @@
     -> 
     C = ORDER A BY a; 
 
-
-### version +2
-
-1. Add `FROM` to the schema LOAD/STORE operations:
-
-    `ID = LOAD SCHEMA ... VERSION ... ;`  
-    ->  
-    `ID = LOAD SCHEMA ... VERSION ... FROM ... ;`  
-      
-    `ID = LOAD TABLE ... FROM ... WITH SCHEMA ... VERSION ... ;`  
-    ->  
-    `ID = LOAD TABLE ... FROM ... WITH SCHEMA ... VERSION ... FROM ... ;`  
-      
-    `STORE SCHEMA ... INTO ... ;`  
-    ->  
-    `STORE SCHEMA ... INTO ... FROM ... ;`  

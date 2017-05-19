@@ -2,6 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from io import TextIOWrapper
 from antlr4 import *
+from antlr4.tree.Tree import TerminalNodeImpl
 
 import schema.io
 from grammar.sdplListener import sdplListener
@@ -263,6 +264,21 @@ class SdplGenerator(sdplListener):
         # step 3: emit projection code
         self.lexicon.emit_join(relation_name, column_names, projection)
 
+    def _parse_filter_expression(self, ctx: sdplParser.FilterExpressionContext):
+        out = ''
+        for filter_element in ctx.children:
+            if isinstance(filter_element, sdplParser.FilterExpressionContext):
+                out += self._parse_filter_expression(filter_element)
+            elif isinstance(filter_element, sdplParser.FilterOperationContext):
+                out += self.lexicon.parse_filter_operation(filter_element)
+            elif isinstance(filter_element, TerminalNodeImpl):
+                # AND / OR
+                out += self.lexicon.parse_filter_terminal_node(filter_element.getText())
+            else:
+                raise TypeError('Unsupported type of filter expression context child: {0}'.format(type(filter_element)))
+            out += ' '
+        return out
+
     @print_comments()
     def exitFilterDecl(self, ctx: sdplParser.FilterDeclContext):
         # ID = FILTER ID BY filterExpression ;
@@ -270,7 +286,11 @@ class SdplGenerator(sdplListener):
         relation_name = ctx.getChild(0).getText()
         source_relation_name = ctx.getChild(3).getText()
         self.relations[relation_name] = self.relations[source_relation_name]
-        self._out_bypass_parser(ctx)
+
+        ctx_filter_exp = ctx.getTypedRuleContexts(sdplParser.FilterExpressionContext)
+        ctx_filter_exp = ctx_filter_exp[0]  # only one block of filter_expression is expected
+        out = self._parse_filter_expression(ctx_filter_exp)
+        self.lexicon.emit_filterby(relation_name, source_relation_name, out)
 
     @print_comments()
     def exitOrderByDecl(self, ctx: sdplParser.OrderByDeclContext):
