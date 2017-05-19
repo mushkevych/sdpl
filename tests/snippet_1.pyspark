@@ -2,27 +2,30 @@
 # Do not edit the file manually
 # # snippet: load schema, load data, perform joins and schema projections, store result
 sqlContext.udf.register('file://path_to_library', 'first_library')
-A = sqlContext.read.csv('s3://my_bucket.s3.amazonaws.com:443/path/within/bucket/table_name', schema=StructType([ StructField('a', StringType, False),
+A = sqlContext.read.csv('s3://my_bucket.s3.amazonaws.com:443/path/within/bucket/table_name', schema=StructType([
+    StructField('a', StringType, False),
     StructField('aa', StringType, False),
     StructField('aaa', StringType, False),
     StructField('column', BooleanType, False),
     StructField('another_column', BooleanType, False),
     StructField('yet_another_column', BooleanType, False) ])
-, sep=',')
-B = sqlContext.read.csv('s3://my_bucket.s3.amazonaws.com:443/path/within/bucket/file_blob', schema=StructType([ StructField('b', IntegerType, False),
+    , sep=',')
+B = sqlContext.read.csv('s3://my_bucket.s3.amazonaws.com:443/path/within/bucket/file_blob', schema=StructType([
+    StructField('b', IntegerType, False),
     StructField('bb', IntegerType, False),
     StructField('bbb', IntegerType, False),
     StructField('column', BooleanType, False),
     StructField('another_column', BooleanType, False),
     StructField('yet_another_column', BooleanType, False) ])
-, sep=',')
-C = sqlContext.read.csv('s3://my_bucket.s3.amazonaws.com:443/path/within/bucket/file_name', schema=StructType([ StructField('c', LongType, False),
+    , sep=',')
+C = sqlContext.read.csv('s3://my_bucket.s3.amazonaws.com:443/path/within/bucket/file_name', schema=StructType([
+    StructField('c', LongType, False),
     StructField('cc', LongType, False),
     StructField('ccc', LongType, False),
     StructField('column', BooleanType, False),
     StructField('another_column', BooleanType, False),
     StructField('yet_another_column', BooleanType, False) ])
-, sep=',')
+    , sep=',')
 JOIN_A_B = A.join(B, (A.a == B.b), 'left_outer')
 D = JOIN_A_B.select(
     col('a').alias('a'),

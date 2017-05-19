@@ -2,21 +2,23 @@
 # Do not edit the file manually
 # # snippet: testing GROUP BY and ORDER BY construct
 # # load A
-A = sqlContext.read.csv('s3://my_bucket.s3.amazonaws.com:443/path/within/bucket/table_name', schema=StructType([ StructField('a', StringType, False),
+A = sqlContext.read.csv('s3://my_bucket.s3.amazonaws.com:443/path/within/bucket/table_name', schema=StructType([
+    StructField('a', StringType, False),
     StructField('aa', StringType, False),
     StructField('aaa', StringType, False),
     StructField('column', BooleanType, False),
     StructField('another_column', BooleanType, False),
     StructField('yet_another_column', BooleanType, False) ])
-, sep=',')
+    , sep=',')
 # # load B
-B = sqlContext.read.csv('s3://my_bucket.s3.amazonaws.com:443/path/within/bucket/file_blob', schema=StructType([ StructField('b', IntegerType, False),
+B = sqlContext.read.csv('s3://my_bucket.s3.amazonaws.com:443/path/within/bucket/file_blob', schema=StructType([
+    StructField('b', IntegerType, False),
     StructField('bb', IntegerType, False),
     StructField('bbb', IntegerType, False),
     StructField('column', BooleanType, False),
     StructField('another_column', BooleanType, False),
     StructField('yet_another_column', BooleanType, False) ])
-, sep=',')
+    , sep=',')
 # # ORDER BY clause
 C = A.orderBy(A.a, A.aa, A.aaa)
 # # ORDER BY clause

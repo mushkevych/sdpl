@@ -52,7 +52,7 @@ class SparkLexicon(AbstractLexicon):
             store_string = "sqlContext.write.csv({0}, compression='{1}', sep=',')". \
                 format(fqfp, data_sink.data_repository.compression)
         elif data_sink.data_repository.data_type == DataType.TSV.name:
-            store_string = "sqlContext.write.csv({0}, compression='{1}', sep='\t')". \
+            store_string = "sqlContext.write.csv({0}, compression='{1}', sep='\\t')". \
                 format(fqfp, data_sink.data_repository.compression)
         elif data_sink.data_repository.data_type == DataType.BIN.name:
             store_string = "TBD"
@@ -96,7 +96,7 @@ class SparkLexicon(AbstractLexicon):
             load_string = "sqlContext.read.csv({0}, schema={1}, sep=',')". \
                 format(fqfp, self.parse_schema(data_source.relation.schema))
         elif data_source.data_repository.data_type == DataType.TSV.name:
-            load_string = "sqlContext.read.csv({0}, schema={1}, sep='\t')". \
+            load_string = "sqlContext.read.csv({0}, schema={1}, sep='\\t')". \
                 format(fqfp, self.parse_schema(data_source.relation.schema))
         elif data_source.data_repository.data_type == DataType.BIN.name:
             load_string = "TBD"
@@ -142,7 +142,7 @@ class SparkLexicon(AbstractLexicon):
     def parse_schema(self, schema: Schema, max_version=MIN_VERSION_NUMBER):
         filtered_fields = [f for f in schema.fields if f.version <= max_version]
         out = ',\n    '.join([self.parse_field(field) for field in filtered_fields])
-        out = 'StructType([ {0} ])\n'.format(out)
+        out = 'StructType([\n    {0} ])\n    '.format(out)
         return out
 
     def parse_operand(self, ctx: sdplParser.OperandContext):

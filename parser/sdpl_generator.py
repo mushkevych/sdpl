@@ -282,7 +282,6 @@ class SdplGenerator(sdplListener):
                 out += out_format.format(parsed_element)
                 continue
             elif isinstance(element, TerminalNodeImpl):
-                # ) (
                 if element.getText() in ['(', ')']:
                     # skip ( and ) and let them be processed by the `_parse_filter_expression`
                     pass
@@ -308,13 +307,14 @@ class SdplGenerator(sdplListener):
             elif isinstance(element, sdplParser.FilterOperationContext):
                 out += self._parse_filter_operation(element)
             elif isinstance(element, TerminalNodeImpl):
-                # AND OR ) (
                 if element.getText() in ['(', ')']:
                     # add no space for ( and )
                     out_format = '{0}'
-                else:
+                elif element.getText() in ['AND', 'OR']:
                     # add space around AND and OR
                     out_format = ' {0} '
+                else:
+                    raise ValueError('Unsupported value for terminal node {0}'.format(element.getText()))
 
                 parsed_element, closing_statement = self.lexicon.parse_filter_terminal_node(element.getText())
                 if closing_statement:
