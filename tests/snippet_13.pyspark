@@ -31,5 +31,5 @@ Z = JOIN_A_B.select(
 )
 sqlContext.write.jdbc(jdbc:postgresql://host.the_company.xyz:6789/mydb, db_schema.db_table_name, properties={ 'user': 'the_user', 'password': 'the_password' })
 sqlContext.write.csv('s3://my_bucket.s3.amazonaws.com:443/path/within/bucket/my_file.gz', compression='SNAPPY', sep=',')
-sqlContext.write.csv('/data/hive/db_name/my_file', compression='NONE', sep='	')
+sqlContext.write.csv('/data/hive/db_name/my_file', compression='NONE', sep='\t')
 # SDPL output: EOF
