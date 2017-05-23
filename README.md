@@ -6,7 +6,17 @@ schema driven processing language
 SDPL introduces data schema to major data processing languages
 such as Apache Pig, Spark and Hive. SDPL supports generic operations such as
 `LOAD`, `STORE`, `JOIN`, `PROJECT`, while complex transformation and fine-tuning
-are intended to be performed in the target language via quotation
+are performed in the target language via quotation.
+
+SDPL links 3 artifacts:
+ 
+ * DataRepository file describes data source and credentials needed to access it
+ * Schema file describes the data 
+ * Source code describes what data to load and transformation to apply  
+
+Supported target languages are Apache Pig and Spark; DataRepository is a short YAML file; 
+Schema could be recorded in YAML, AVRO or Protobuf   
+
 
 # Repository
 
