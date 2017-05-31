@@ -1,0 +1,9 @@
+{"namespace": "sdpl.avro",
+  "type": "record",
+  "name": "ErroneousSchemaAvro",
+  "fields": [
+    {"name": "name", "type": "string"},
+    {"name": "alpha",  "type": ["int", "string"]},
+    {"name": "beta", "type": ["string", "null"]}
+  ]
+}

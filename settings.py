@@ -22,7 +22,8 @@ testable_modules = [
 ]
 
 test_cases = [
-    'tests.test_schema',
+    'tests.test_avro_schema',
+    'tests.test_sdpl_schema',
     'tests.test_sdpl_generator',
 ]
 

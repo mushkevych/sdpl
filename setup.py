@@ -21,5 +21,5 @@ setup(name='sdpl',
           'Programming Language :: Python :: 3.5',
           'Topic :: Software Development :: Code Generators',
       ],
-      install_requires=['antlr4-python3-runtime', 'PyYAML', 'xmlrunner', 'pylint']
+      install_requires=['antlr4-python3-runtime', 'PyYAML', 'xmlrunner', 'pylint', 'avro-python3']
       )
