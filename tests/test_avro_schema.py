@@ -21,7 +21,7 @@ class AvroSchemaTest(unittest.TestCase):
         file_name = 'error_schema_avro.avsc'
         try:
             self._load_avro_schema(file_name)
-            self.assertTrue(False, 'SDPL AVRO Loader exception was raised but not expected for {0}'.format(file_name))
+            self.assertTrue(False, 'SDPL AVRO Loader exception was expected but not raised for {0}'.format(file_name))
         except Exception:
             traceback.print_exc()
             self.assertTrue(True, 'SDPL AVRO Loader exception was expected and raised for {0}'.format(file_name))
