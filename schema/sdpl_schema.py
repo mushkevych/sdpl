@@ -8,6 +8,7 @@ VARCHAR_DEFAULT_LENGTH = 256
 MIN_VERSION_NUMBER = 1
 
 
+# `https://pig.apache.org/docs/r0.16.0/basic.html#Data+Types+and+More`
 @unique
 class FieldType(Enum):
     INTEGER = 1

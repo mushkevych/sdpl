@@ -4,6 +4,7 @@ import avro.schema
 
 from schema import sdpl_schema
 
+# `https://avro.apache.org/docs/1.8.1/spec.html#schema_primitive`
 AVRO_MAPPING = {
     'int': sdpl_schema.FieldType.INTEGER,
     'long': sdpl_schema.FieldType.LONG,

@@ -15,7 +15,7 @@ SDPL links 3 artifacts:
  * Source code describes what data to load and transformation to apply  
 
 Supported target languages are Apache Pig and Spark; DataRepository is a short YAML file; 
-Schema could be recorded in YAML, AVRO or Protobuf   
+Schema could be read from SDPL YAML, AVRO or Protobuf formats   
 
 
 # Repository
