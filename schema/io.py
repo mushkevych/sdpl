@@ -13,6 +13,7 @@ EXTENSION_SDPL = 'yaml'
 EXTENSION_PROTOBUF = 'proto'
 
 
+# https://stackoverflow.com/questions/67631/how-to-import-a-module-given-the-full-path
 def load(input_path:str, model_name=None):
     extension = os.path.basename(input_path).split('.')[-1]
     with open(input_path, mode='r', encoding='utf-8') as input_stream:
