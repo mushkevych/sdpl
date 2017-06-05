@@ -15,4 +15,5 @@ pipelines:
           - pip install antlr4-python3-runtime
           - pip install PyYAML
           - pip install avro-python3
+          - pip install protobuf
           - python3 sdpl.py test
