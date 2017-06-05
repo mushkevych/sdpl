@@ -3,6 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 import os
 import avro
 import importlib
+import importlib.util
 from yaml import load as yaml_load, dump, YAMLObject
 
 from schema.avro_schema import AvroSchema
@@ -13,7 +14,6 @@ EXTENSION_SDPL = 'yaml'
 EXTENSION_PROTOBUF = 'proto'
 
 
-# https://stackoverflow.com/questions/67631/how-to-import-a-module-given-the-full-path
 def load(input_path:str, model_name=None):
     extension = os.path.basename(input_path).split('.')[-1]
     with open(input_path, mode='r', encoding='utf-8') as input_stream:
@@ -26,10 +26,11 @@ def load(input_path:str, model_name=None):
             if not model_name:
                 raise ValueError('optional attribute model_name is required to parse .proto schema')
 
-            file_name = os.path.basename(input_path)
-            file_name = file_name.replace('.proto', '_pb2')
-            i = importlib.import_module(file_name)
-            s = getattr(i, model_name)
+            input_path = input_path.replace('.proto', '_pb2.py')
+            py_spec = importlib.util.spec_from_file_location(model_name, input_path)
+            py_module = importlib.util.module_from_spec(py_spec)
+            py_spec.loader.exec_module(py_module)
+            s = getattr(py_module, model_name)
             return ProtobufSchema(s).to_sdpl_schema()
         else:
             raise ValueError('unknown schema file extension {0}'.format(extension))
