@@ -15,7 +15,7 @@ SDPL links 3 artifacts:
  * Source code describes what data to load and transformation to apply  
 
 Supported target languages are Apache Pig and Spark; DataRepository is a short YAML file; 
-Schema could be read from SDPL YAML, AVRO or Protobuf formats   
+Schema could be read from SDPL YAML, AVRO and Protobuf formats   
 
 
 # Repository
@@ -38,6 +38,14 @@ Mirror: https://github.com/mushkevych/sdpl
 - PyYAMP
 
     ` $> pip install PyYAML `
+
+- Avro
+
+    ` $> pip install avro-python3 `
+
+- Protobuf
+
+    ` $> pip install protobuf `
 
 # Compile parser and lexer out of the .g4 grammar
 
