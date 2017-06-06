@@ -1,6 +1,5 @@
 __author__ = 'Bohdan Mushkevych'
 
-import traceback
 import unittest
 
 import os
@@ -23,7 +22,6 @@ class AvroSchemaTest(unittest.TestCase):
             self._load_avro_schema(file_name)
             self.assertTrue(False, 'SDPL AVRO Loader exception was expected but not raised for {0}'.format(file_name))
         except Exception:
-            traceback.print_exc()
             self.assertTrue(True, 'SDPL AVRO Loader exception was expected and raised for {0}'.format(file_name))
 
     def test_valid_schema(self):

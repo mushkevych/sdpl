@@ -26,7 +26,7 @@ DESCRIPTOR_TYPES = {
     18: 'TYPE_SINT64'
 }
 
-# `https://developers.google.com/protocol-buffers/docs/proto3#packages`
+# `google.protobuf.descriptor.FieldDescriptor`
 PROTOBUF_MAPPING = {
     'TYPE_INT32': sdpl_schema.FieldType.INTEGER,
     'TYPE_UINT32': sdpl_schema.FieldType.INTEGER,

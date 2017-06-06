@@ -11,9 +11,9 @@ TESTS_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 
 class ProtobufSchemaTest(unittest.TestCase):
-    def _load_proto_schema(self, file_name, model_name):
+    def _load_proto_schema(self, file_name):
         full_path = os.path.join(TESTS_ROOT, file_name)
-        yaml_obj = load(full_path, model_name)
+        yaml_obj = load(full_path)
         return yaml_obj
 
     def test_valid_schema(self):
@@ -27,8 +27,8 @@ class ProtobufSchemaTest(unittest.TestCase):
         schema.fields.append(Field('result_per_page', FieldType.INTEGER, is_nullable=False))
         schema.fields.append(Field('corpus', FieldType.CHARARRAY, is_nullable=False))
 
-        file_name = 'schema_protobuf.proto'
-        yaml_obj = self._load_proto_schema(file_name, 'SearchRequest')
+        file_name = 'schema_protobuf.proto|SearchRequest'
+        yaml_obj = self._load_proto_schema(file_name)
         self.assertIsInstance(yaml_obj, Schema, 'SDPL PROTO Loader was not successful for {0}'.format(file_name))
         self.assertEqual(schema, yaml_obj)
 

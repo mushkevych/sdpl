@@ -17,6 +17,7 @@ def files_with_prefix(prefix, location=TESTS_ROOT):
     for f in os.listdir(location):
         if f.startswith(prefix) and f.endswith('sdpl'):
             files.append(os.path.join(TESTS_ROOT, f))
+    files.sort()
     return files
 
 
@@ -25,6 +26,7 @@ def run_success_cases(sdpl_cases, tester, lexicon_class, output_ext):
 
     # run all the tests from the nominal tests
     for full_path in sdpl_cases:
+        print('{0}: running success case {1}'.format(lexicon_class.__name__, os.path.basename(full_path)))
         try:
             # locate compiler output - .pig file, and create one if needed
             base_file_path = full_path.replace('.sdpl', output_ext)
@@ -55,8 +57,9 @@ def run_success_cases(sdpl_cases, tester, lexicon_class, output_ext):
 def run_failure_cases(sdpl_cases, tester, lexicon_class):
     assert issubclass(lexicon_class, AbstractLexicon)
 
+    null_stream = open(os.devnull, 'w')  # redirect error cases output to /dev/null
     for full_path in sdpl_cases:
-        null_stream = open(os.devnull, 'w')  # redirect error cases output to /dev/null
+        print('{0}: running failure case {1}'.format(lexicon_class.__name__, os.path.basename(full_path)))
         try:
             run_generator(full_path, null_stream, lexicon_class)
             tester.assertTrue(False, 'SDPL parser exception was not expected for {0}'.format(full_path))

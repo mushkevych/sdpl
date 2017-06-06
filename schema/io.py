@@ -12,9 +12,16 @@ from schema.protobuf_schema import ProtobufSchema
 EXTENSION_AVRO = 'avsc'
 EXTENSION_SDPL = 'yaml'
 EXTENSION_PROTOBUF = 'proto'
+MODEL_NAME_DELIMITER = '|'
 
 
-def load(input_path:str, model_name=None):
+def load(input_path:str):
+    model_name = None
+    if MODEL_NAME_DELIMITER in input_path:
+        tokens = input_path.split(MODEL_NAME_DELIMITER, maxsplit=1)
+        model_name = tokens[1]
+        input_path = tokens[0]
+
     extension = os.path.basename(input_path).split('.')[-1]
     with open(input_path, mode='r', encoding='utf-8') as input_stream:
         if extension == EXTENSION_SDPL:

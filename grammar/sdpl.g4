@@ -130,7 +130,7 @@ functionExpression
 functionName    : ID ('.' ID)* ;
 
 quotedString
-    : '\'' (ID | '.' | ':' | '/' | '$' | '{' | '}' | '@' | '%' | '?' )* '\''
+    : '\'' (ID | '.' | ':' | '/' | '$' | '{' | '}' | '@' | '%' | '?'| '|' | '&' )* '\''
     ;
 
 compOperator
