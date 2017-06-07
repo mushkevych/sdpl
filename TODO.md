@@ -2,18 +2,19 @@
 
 ### version +1
 
-1. Simplify use of the relation name in the field resolution:
+1. Add support for following types:
+ - NULL
+ - LIST
+ - MAP
+ - ENUM
+ 
+### version +2
 
+1. Add support for following types:
+ - nested object 
+ 
+### reference 
 
-    C = FILTER A BY A.a == 3; 
-    -> 
-    C = FILTER A BY a == 3;   
-      
-    C = GROUP A BY A.a; 
-    -> 
-    C = GROUP A BY a;  
-      
-    C = ORDER A BY A.a; 
-    -> 
-    C = ORDER A BY a; 
-
+ - pig `https://pig.apache.org/docs/r0.16.0/basic.html#Data+Types+and+More`
+ - protobuf `https://developers.google.com/protocol-buffers/docs/proto3#packages`
+ - avro `https://avro.apache.org/docs/1.8.1/spec.html#schema_primitive`

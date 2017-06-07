@@ -1,0 +1,11 @@
+# ERROR: Referencing non-existing column from PROTOBUF schema
+
+# load B
+B = LOAD TABLE 'file_blob' FROM 'tests/repo_dfs.yaml'
+        WITH SCHEMA 'tests/schema_protobuf.proto|SearchRequest' VERSION 1;
+
+# ORDER BY clause
+D = GROUP B BY non_existing_column;
+
+# user formatted comments ahead of STORE D
+STORE D INTO TABLE 'table_name' FROM 'tests/repo_dfs.yaml';

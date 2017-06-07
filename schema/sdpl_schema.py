@@ -8,6 +8,7 @@ VARCHAR_DEFAULT_LENGTH = 256
 MIN_VERSION_NUMBER = 1
 
 
+# `https://pig.apache.org/docs/r0.16.0/basic.html#Data+Types+and+More`
 @unique
 class FieldType(Enum):
     INTEGER = 1
@@ -51,6 +52,11 @@ class Field(YAMLObject):
                and self.max_length == other.max_length \
                and self.default == other.default
 
+    def __hash__(self):
+        """ NOTICE: `version` field is not considered """
+        return hash(self.name) ^ hash(self.field_type) ^ hash(self.is_nullable) ^ hash(self.is_unique) ^ \
+               hash(self.is_primary_key) ^ hash(self.max_length) ^ hash(self.default)
+
 
 class Schema(YAMLObject):
     """ module represents collection of schema fields """
@@ -60,13 +66,12 @@ class Schema(YAMLObject):
         self.fields = list()
 
     def __eq__(self, other):
-        if len(self.fields) != len(other.fields):
+        if not isinstance(other, Schema):
             return False
+        return set(self.fields) == set(other.fields)
 
-        for f in self.fields:
-            if f not in other.fields:
-                return False
-        return True
+    def __hash__(self):
+        return hash(self.fields)
 
     def __getitem__(self, item):
         for f in self.fields:
@@ -115,11 +120,11 @@ class DataRepository(YAMLObject):
     """
     yaml_tag = '!DataRepository'
 
-    def __init__(self, host:str, port:Union[int, str], db:str,
-                 user:str, password:str, description:str,
-                 data_type:DataType=DataType.CSV,
-                 repo_type:RepositoryType=RepositoryType.FILE,
-                 compression:Compression=Compression.NONE,
+    def __init__(self, host: str, port: Union[int, str], db: str,
+                 user: str, password: str, description: str,
+                 data_type: DataType = DataType.CSV,
+                 repo_type: RepositoryType = RepositoryType.FILE,
+                 compression: Compression = Compression.NONE,
                  **kwargs):
         self.host = host
         self.port = port

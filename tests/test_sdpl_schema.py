@@ -90,7 +90,7 @@ def create_relations(schema_paths):
     return relations
 
 
-class SchemaTest(unittest.TestCase):
+class SdplSchemaTest(unittest.TestCase):
     def setUp(self):
         # format: {path : Schema}
         self.schema_paths = create_schemas()

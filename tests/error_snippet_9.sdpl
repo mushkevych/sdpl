@@ -1,0 +1,11 @@
+# ERROR: Referencing non-existing column from AVRO schema
+
+# load A
+A = LOAD TABLE 'table_name' FROM 'tests/repo_dfs.yaml'
+        WITH SCHEMA 'tests/schema_avro.avsc' VERSION 1 ;
+
+# ORDER BY clause
+C = ORDER A BY alpha, A.non_existing_column;
+
+# user formatted comments ahead of STORE C
+STORE C INTO TABLE 'table_name' FROM 'tests/repo_dfs.yaml';

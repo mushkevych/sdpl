@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name='sdpl',
-      version='0.5',
+      version='0.6',
       description='Schema Driven Processing Language',
       author='Bohdan Mushkevych',
       author_email='mushkevych@gmail.com',
@@ -21,5 +21,5 @@ setup(name='sdpl',
           'Programming Language :: Python :: 3.5',
           'Topic :: Software Development :: Code Generators',
       ],
-      install_requires=['antlr4-python3-runtime', 'PyYAML', 'xmlrunner', 'pylint']
+      install_requires=['antlr4-python3-runtime', 'PyYAML', 'xmlrunner', 'pylint', 'avro-python3', 'protobuf']
       )
